@@ -1,0 +1,55 @@
+/*
+ * Site-global foundation.  The public routes own their visual systems in
+ * CSS modules; this file only supplies a predictable document canvas and
+ * framework-neutral font tokens so Next and Vite can render the same source.
+ */
+:root {
+  --font-geist-sans:
+    ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-geist-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+  --font-desa-wordmark:
+    ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+  color-scheme: light;
+  font-family: var(--font-geist-sans);
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+html:has([data-landing-page]) {
+  min-width: 0;
+  font-size: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--ds-color-background-canvas, oklch(0.988 0.006 84));
+  color: var(--ds-color-text, oklch(0.22 0.018 256));
+  font-family: var(--font-geist-sans);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body:has([data-landing-page]) {
+  min-width: 0;
+  overflow: auto;
+  background: oklch(0.974 0.027 85);
+  color: oklch(0.321 0.045 213);
+  color-scheme: light;
+}

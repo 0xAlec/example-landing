@@ -1,0 +1,70 @@
+.sectionHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; max-width: none; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  column-gap: 32px;
+  row-gap: 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature { min-width: 0; padding: 12px 12px 28px; border-radius: var(--landing-card-radius, 24px); background: var(--landing-card, transparent); box-shadow: 0 0 0 1px var(--nori-line), var(--landing-shadow); }
+
+.graphic {
+  --feature-panel-background: var(--landing-graphic-background);
+  --feature-panel-base: var(--landing-graphic-base);
+  --feature-canvas-ink: var(--landing-graphic-ink);
+  --feature-canvas-muted: var(--landing-graphic-muted);
+  --feature-diagram-line: var(--landing-graphic-line);
+  --feature-ticket-surface: oklch(0.974 0.027 85);
+  --feature-icon-surface: oklch(0.974 0.027 85);
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: max(300px, 15rem);
+  max-height: max(360px, 17rem);
+  overflow: hidden;
+  margin-block-end: 24px;
+  border-radius: max(5px, calc(var(--landing-card-radius, 24px) - 12px));
+  outline: 1px solid oklch(0 0 0 / 0.08);
+  outline-offset: -1px;
+}
+
+.featureHeading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-inline: 12px;
+}
+
+.feature h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.feature p {
+  max-width: 42ch;
+  margin: 12px 12px 0;
+  color: var(--nori-muted, var(--paper-muted));
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 34px; }
+  .graphic { margin-block-end: 20px; }
+  .feature { padding: 9px 9px 24px; }
+  .featureHeading { padding-inline: 9px; }
+  .feature p { margin-inline: 9px; }
+}
+
+.feature { border-top: 3px solid var(--landing-accent); }
+@media (forced-colors: active) {
+  .graphic { border: 1px solid CanvasText; box-shadow: none; }
+  .feature { border: 1px solid CanvasText; background: Canvas; box-shadow: none; }
+}

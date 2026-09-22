@@ -1,0 +1,44 @@
+.scene {
+  position: absolute;
+  z-index: -1;
+  inset-block: 0 -120px;
+  left: 50%;
+  width: min(100%, 2560px);
+  transform: translateX(-50%);
+  overflow: hidden;
+  mix-blend-mode: multiply;
+  mask-image: linear-gradient(to right, #000 10%, transparent 34%, transparent 66%, #000 90%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.bank {
+  position: absolute;
+  bottom: 0;
+  width: clamp(560px, 44cqw, 840px);
+  aspect-ratio: 3 / 2;
+}
+
+.leftBank { left: calc(-1 * clamp(72px, 7cqw, 132px)); }
+.rightBank { right: calc(-1 * clamp(72px, 7cqw, 132px)); }
+
+.shoreline {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.5;
+}
+
+.leftBank .shoreline { mask-image: linear-gradient(to right, transparent, #000 16%, #000 94%, transparent); }
+.rightBank .shoreline { mask-image: linear-gradient(to right, transparent, #000 6%, #000 84%, transparent); }
+
+/* Keep the drawings below enlarged text and smaller layouts. */
+@container landing-hero (max-width: 68rem) {
+  .scene { inset-block: auto 0; height: var(--hero-scene-space); width: min(100%, 760px); mask-image: none; }
+  .bank { width: min(52%, 272px, calc(var(--hero-scene-space) * 1.5)); transform: none; }
+  .leftBank { left: -8px; }
+  .rightBank { right: -8px; }
+  .shoreline { opacity: 0.72; }
+}
+
+@media (forced-colors: active) { .scene { display: none; } }

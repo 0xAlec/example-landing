@@ -1,0 +1,19 @@
+.crewTrail { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 14px 8px 0; font-size: 0.8125rem; color: var(--nori-muted); }
+.trailPortraits { display: flex; padding-right: 5px; }
+.trailPortraits img { width: 36px; height: 36px; object-fit: contain; margin-right: -5px; }
+.crewTrail > a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--nori-ink); font-weight: 600; }
+.crewTrail > a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.studioScene { display: none; padding: 24px 6px 0; pointer-events: none; user-select: none; }
+.studioCrew { position: relative; width: min(100%, 420px); aspect-ratio: 5 / 3; margin-inline: auto; }
+.studioPortrait { position: absolute; bottom: -4%; left: 0; width: 40%; height: auto; filter: drop-shadow(0 2px 0 var(--nori-cream)); transform: rotate(-7deg); }
+.studioPortrait[data-seat="1"] { top: 0; bottom: auto; left: 17%; width: 36%; transform: rotate(-8deg); }
+.studioPortrait[data-seat="2"] { z-index: 2; bottom: -9%; left: 25%; width: 50%; transform: rotate(2deg); }
+.studioPortrait[data-seat="3"] { top: 0; bottom: auto; left: 50%; width: 32%; transform: rotate(7deg); }
+.studioPortrait[data-seat="4"] { left: 60%; transform: rotate(7deg); }
+
+@media (max-width: 600px) {
+  .studioScene { display: block; }
+  .crewTrail { flex-wrap: wrap; gap: 0 9px; padding-top: 7px; font-size: 0.75rem; }
+  .trailPortraits img { width: 30px; height: 30px; }
+  .crewTrail > a { min-height: 44px; }
+}

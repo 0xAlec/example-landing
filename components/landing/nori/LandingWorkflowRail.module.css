@@ -1,0 +1,152 @@
+.workflow {
+  --rail-play-state: paused;
+  --step-transition-duration: 320ms;
+  --step-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.85fr) minmax(0, 1.65fr);
+  align-items: center;
+  gap: clamp(32px, 6cqw, 80px);
+  margin-block-start: 44px;
+}
+.workflow[data-motion-state="running"] { --rail-play-state: running; }
+.workflow:focus-within { --rail-play-state: paused; }
+.rail { position: relative; width: 100%; max-width: 24rem; min-width: 0; }
+.rail::before { content: ""; position: absolute; inset-block: 18px; inset-inline-start: 0; width: 1px; background: var(--nori-line); }
+.step {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  padding: 20px 4px 20px 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nori-muted);
+  text-align: start;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--step-transition-duration) var(--step-transition-easing);
+}
+.stepProgress { position: absolute; inset-block: 0; inset-inline-start: -0.5px; width: 2px; overflow: hidden; pointer-events: none; }
+.step:first-child .stepProgress { inset-block-start: 18px; }
+.step:last-child .stepProgress { inset-block-end: 18px; }
+.stepProgressFill { display: block; width: 100%; height: 100%; border-radius: 999px; background: var(--nori-slate); transform: scaleY(0); transform-origin: top; }
+.step[aria-selected="true"] .stepProgressFill { animation: stepProgress 4s linear both; animation-play-state: var(--rail-play-state); }
+@keyframes stepProgress { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.step:focus-visible { outline: 2px solid var(--nori-focus); outline-offset: 5px; }
+.step[aria-selected="true"] { color: var(--nori-ink); }
+.stepHeading { display: block; font-family: var(--font-sans); font-size: 1.125rem; font-weight: 550; letter-spacing: -0.015em; line-height: 1.4; overflow-wrap: break-word; text-wrap: balance; }
+.description {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--step-transition-duration) var(--step-transition-easing), visibility 0s var(--step-transition-duration);
+}
+.step[aria-selected="true"] .description { grid-template-rows: 1fr; visibility: visible; transition-delay: 0s; }
+.descriptionInner { min-height: 0; overflow: hidden; }
+/* Clear the old copy early; reveal the next copy as its space opens. */
+.descriptionCopy { display: block; max-width: 34ch; padding-block: 12px 2px; color: var(--nori-muted); font-size: 1rem; font-weight: 400; line-height: 1.6; letter-spacing: 0; overflow-wrap: break-word; text-wrap: pretty; opacity: 0; transition: opacity 120ms cubic-bezier(0.23, 1, 0.32, 1); }
+.step[aria-selected="true"] .descriptionCopy { opacity: 1; transition: opacity 240ms var(--step-transition-easing) 80ms; }
+@media (hover: hover) and (pointer: fine) {
+  .workflow:hover { --rail-play-state: paused; }
+  .step:hover { color: var(--nori-ink); }
+}
+.previewFrame {
+  --nori-focus: var(--landing-graphic-ink);
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 30rem;
+  padding: clamp(20px, 3cqw, 40px);
+  border: 1px solid var(--landing-graphic-rim);
+  border-radius: 32px;
+  background: var(--landing-graphic-background);
+  box-shadow: var(--landing-graphic-shadow);
+}
+.panel {
+  display: grid;
+  grid-area: 1 / 1;
+  align-content: center;
+  min-width: 0;
+  border-radius: 16px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--step-transition-duration) var(--step-transition-easing), visibility 0s var(--step-transition-duration);
+}
+.panel[data-active="true"] { z-index: 1; opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.panel[data-step="review"] { align-content: start; }
+.panel:focus-visible { outline: 3px solid var(--nori-focus); outline-offset: 8px; }
+.environment { width: 100%; }
+.toolMap { position: relative; width: min(100%, 25rem); aspect-ratio: 1; margin-inline: auto; }
+.orbit { position: absolute; inset: 14%; border: 1px solid var(--landing-graphic-line); border-radius: 50%; }
+.workspaceMark { position: absolute; inset: 36%; display: grid; place-items: center; border: 1px solid oklch(1 0 0 / 0.9); border-radius: 28%; background: var(--nori-white); box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 18px 40px -12px oklch(0 0 0 / 0.15); }
+.workspaceMark img { display: block; width: 75%; height: 75%; object-fit: contain; }
+.toolOrbit { position: absolute; inset: 0; }
+.toolNode { position: absolute; width: 18%; aspect-ratio: 1; transform: translate(-50%, -50%); }
+.toolFace { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--nori-white); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.95), 0 8px 24px -12px oklch(0 0 0 / 0.14); }
+.toolNode img { display: block; width: 52%; height: 52%; object-fit: contain; }
+/* Rotate the shared orbit and counter-rotate each face on the same timeline. */
+.toolOrbit, .toolFace { animation: toolOrbitSpin 48s linear infinite; animation-play-state: paused; }
+.toolFace { animation-direction: reverse; }
+.environment[data-orbit-motion="active"] .toolOrbit,
+.environment[data-orbit-motion="active"] .toolFace { animation-play-state: running; }
+@keyframes toolOrbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.agentConnections { --preview-play-state: paused; width: min(100%, 30rem); margin-inline: auto; }
+.agentConnections[data-motion-state="running"] { --preview-play-state: running; }
+.agents { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.agent { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 14px; padding-inline: 4px; color: var(--landing-graphic-ink); font-size: 0.9375rem; font-weight: 500; line-height: 1.4; text-align: center; }
+.agent:nth-child(1) { --agent-arrival-delay: 80ms; }
+.agent:nth-child(2) { --agent-arrival-delay: 180ms; }
+.agent:nth-child(3) { --agent-arrival-delay: 280ms; }
+.agent:nth-child(4) { --agent-arrival-delay: 380ms; }
+.agent > span:last-child { display: grid; min-height: 2.8em; align-content: start; }
+.agentBadge { display: grid; place-items: center; width: min(100%, 72px); aspect-ratio: 1; border: 1px solid oklch(1 0 0 / 0.85); border-radius: 24%; background: var(--nori-white); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.95), 0 1px 2px oklch(0 0 0 / 0.04), 0 12px 24px -14px oklch(0 0 0 / 0.17); }
+.agentBadge img { display: block; width: 50%; height: 50%; object-fit: contain; }
+.agentBadge[data-agent="Pi"] img { transform: scale(1.7); }
+.agentRoutes { display: block; width: 100%; height: 72px; margin-top: 4px; overflow: visible; stroke: var(--landing-graphic-line); stroke-width: 1; }
+.agentRoutes path { vector-effect: non-scaling-stroke; }
+.agentWorkspaceMark { display: grid; margin-inline: auto; place-items: center; width: 112px; height: 112px; border: 1px solid oklch(1 0 0 / 0.9); border-radius: 28px; background: var(--nori-white); box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 18px 40px -12px oklch(0 0 0 / 0.15); }
+.agentWorkspaceMark > img { display: block; width: 75%; height: 75%; object-fit: contain; }
+/* The agents enter once, left to right, while their connections stay fixed. */
+@media (prefers-reduced-motion: no-preference) {
+  .agentConnections[data-animate="true"] .agent { animation: agentArrival 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--agent-arrival-delay) both; animation-play-state: var(--preview-play-state); }
+}
+@keyframes agentArrival {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@container workflow-overview (max-width: 54rem) {
+  .workflow { grid-template-columns: minmax(0, 1fr); gap: 28px; margin-block-start: 32px; }
+  .previewFrame { min-height: 28rem; }
+  .rail { max-width: none; }
+  .step { min-height: 64px; padding-block: 16px; padding-inline-start: 24px; }
+  .step:first-child .stepProgress { inset-block-start: 14px; }
+  .step:last-child .stepProgress { inset-block-end: 14px; }
+  .rail::before { inset-block: 14px; }
+  .descriptionCopy { max-width: 46ch; }
+}
+@container workflow-overview (max-width: 24rem) {
+  .previewFrame { min-height: 25rem; padding: 18px; border-radius: 24px; }
+  .agent { font-size: 0.8125rem; gap: 10px; }
+  .agentRoutes { height: 56px; }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .previewFrame { background: var(--landing-graphic-background); border-color: var(--landing-graphic-rim); box-shadow: none; }
+  .toolFace, .workspaceMark, .agentBadge, .agentWorkspaceMark { background: var(--nori-white); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel, .step, .description, .descriptionCopy, .step[aria-selected="true"] .descriptionCopy { transition: none; }
+  .step[aria-selected="true"] .stepProgressFill { animation: none; transform: scaleY(1); }
+  .toolOrbit, .toolFace { animation: none; }
+}
+@media (forced-colors: active) {
+  .rail::before { background: CanvasText; }
+  .stepProgressFill { background: Highlight; forced-color-adjust: none; }
+  .previewFrame, .workspaceMark, .toolFace, .agentBadge, .agentWorkspaceMark { background: Canvas; color: CanvasText; border: 1px solid CanvasText; box-shadow: none; }
+  .orbit { border-color: CanvasText; }
+  .agentRoutes { stroke: CanvasText; }
+  .agent { color: CanvasText; }
+  .toolNode img, .workspaceMark img, .agentBadge img, .agentWorkspaceMark > img { border-radius: 4px; background: white; forced-color-adjust: none; }
+}

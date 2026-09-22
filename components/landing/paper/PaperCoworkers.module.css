@@ -1,0 +1,161 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 24px;
+  container: crew-group / inline-size;
+  color: var(--nori-ink);
+}
+
+.chooser { min-width: 0; padding: 12px; border-radius: max(5px, calc(var(--landing-card-radius, 24px) - var(--crew-card-inset))); background: var(--landing-graphic-background); outline: 1px solid oklch(0 0 0 / 0.08); outline-offset: -1px; }
+.hint { margin: 0 0 10px; color: var(--landing-graphic-muted); font-size: 0.8125rem; line-height: 1.5; text-align: center; }
+
+.group {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px 0;
+  width: 100%;
+  max-width: 440px;
+  margin-inline: auto;
+  padding-top: 6px;
+}
+
+.character {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 4px 3px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--landing-graphic-ink);
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  --rest-angle: 0deg;
+  --portrait-size: 108%;
+}
+
+.character[data-person="moss"] { grid-area: 1 / 2 / 2 / 4; --rest-angle: -5deg; --portrait-size: 96%; }
+.character[data-person="quill"] { grid-area: 1 / 4 / 2 / 6; --rest-angle: 6deg; --portrait-size: 86%; }
+.character[data-person="piper"] { grid-area: 2 / 1 / 3 / 3; --rest-angle: -9deg; }
+.character[data-person="nori"] { grid-area: 2 / 3 / 3 / 5; --rest-angle: 2deg; --portrait-size: 120%; }
+.character[data-person="kiko"] { grid-area: 2 / 5 / 3 / 7; --rest-angle: 8deg; }
+
+.face {
+  position: relative;
+  display: block;
+  pointer-events: none;
+  width: 100%;
+  aspect-ratio: 1.18;
+  transform: rotate(var(--rest-angle));
+  transform-origin: 50% 75%;
+  transition: transform 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.float {
+  position: absolute;
+  inset: 0;
+  animation: crewFloat 7s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.character[data-person="moss"] .float { animation-delay: -1.4s; }
+.character[data-person="quill"] .float { animation-delay: -4.8s; animation-duration: 7.6s; }
+.character[data-person="piper"] .float { animation-delay: -3.2s; animation-duration: 6.8s; }
+.character[data-person="nori"] .float { animation-delay: -0.5s; animation-duration: 7.4s; }
+.character[data-person="kiko"] .float { animation-delay: -5.6s; animation-duration: 7.2s; }
+.panel[data-crew-motion="active"] .float { animation-play-state: running; }
+.panel:has(:focus-visible) .float { animation-play-state: paused; }
+
+@keyframes crewFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.portrait {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--portrait-size);
+  max-width: none;
+  height: auto;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 1px oklch(0.15 0.025 230 / 0.22));
+}
+
+.name {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  min-width: 62px;
+  min-height: 30px;
+  margin-top: 1px;
+  padding: 3px 10px;
+  border: 1px solid var(--landing-graphic-line);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.character[aria-checked="true"] .name { border-color: var(--nori-cream); background: var(--nori-cream); color: var(--nori-ink); }
+.character:focus-visible { outline: 2px dashed var(--landing-graphic-ink); outline-offset: 3px; }
+.character:focus-visible .face { transform: translateY(-3px) rotate(0deg); }
+
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .float { animation-play-state: paused; }
+  .character:hover .face { transform: translateY(-3px) rotate(0deg) scale(1.025); }
+  .character:not([aria-checked="true"]):hover .name { border-color: var(--nori-cream); background: oklch(0 0 0 / 0.08); }
+}
+
+.character:active .face { transform: rotate(0deg) scale(0.96); transition-duration: 140ms; }
+.character:active .name { border-color: oklch(0.84 0.053 190); background: oklch(0.84 0.053 190); color: var(--nori-ink); }
+
+.captions { display: grid; padding-inline: var(--crew-card-inset); }
+.caption {
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.caption[data-selected="true"] { visibility: visible; opacity: 1; }
+.captionHeading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.captionHeading h3 { margin: 0; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.035em; }
+.captionHeading > span { color: var(--nori-slate); font-size: 0.8125rem; line-height: 1.5; }
+.caption p { max-width: 42ch; margin: 12px 0 0; color: var(--nori-muted); font-size: 1.0625rem; line-height: 1.55; text-wrap: pretty; }
+.screenReader { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+.panel[data-input="keyboard"] .name,
+.panel[data-input="keyboard"] .caption { transition: none; }
+
+@container crew-group (max-width: 19rem) {
+  .group { gap: 8px 0; }
+  .name { padding-inline: 6px; font-size: 0.8125rem; }
+}
+
+@media (max-width: 760px) { .panel { gap: 20px; } }
+@media (prefers-reduced-motion: reduce) {
+  .float { animation: none; }
+  .face, .name, .caption { transition: none; }
+  .character:is(:hover, :focus-visible, :active) .face { transform: rotate(var(--rest-angle)); }
+}
+@media (forced-colors: active) {
+  .chooser { border: 1px solid CanvasText; outline: none; }
+  .portrait { filter: none; }
+  .name, .captionHeading > span, .caption p { color: CanvasText; }
+  .name { border-color: ButtonText; }
+  .character[aria-checked="true"] .name { border-color: Highlight; background: Highlight; color: HighlightText; }
+  .character:focus-visible { outline-color: Highlight; }
+}

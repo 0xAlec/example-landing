@@ -1,0 +1,155 @@
+.wrapper {
+  --scene-band: clamp(160px, 14vw, 184px);
+  position: relative;
+  isolation: isolate;
+  background: var(--nori-cream);
+  width: 100%;
+  container: landing-section-scene / inline-size;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flow-root;
+}
+
+.scenery {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  display: none;
+  height: var(--scene-band);
+  overflow: hidden;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  user-select: none;
+}
+
+.art {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  bottom: 0;
+  width: min(100%, 240px, calc((var(--scene-band) - 24px) * 1.5));
+  height: calc(100% - 24px);
+  transform: translateX(-50%);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.68;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Reuse the section's top margin as part of the compact illustration band. */
+.wrapper[data-section-scene="workflow"] .content {
+  padding-block-start: max(0px, calc(var(--scene-band) + 16px - var(--landing-section-gap, 64px)));
+}
+
+.wrapper[data-section-scene="harbor"] {
+  /* The dock reaches into the cream gap above the footer. */
+  isolation: auto;
+}
+
+.wrapper[data-section-scene="harbor"] .content {
+  padding-block-start: var(--scene-band);
+}
+
+.wrapper[data-section-scene="workflow"] .scenery,
+.wrapper[data-section-scene="harbor"] .scenery {
+  display: block;
+}
+
+/* Large scenes sit behind the existing layout. Their scale does not depend
+   on the gutters; opaque cards cover the parts that extend into the content. */
+@container landing-section-scene (min-width: 68rem) {
+  .wrapper[data-section-scene] .content {
+    padding-block-start: 0;
+  }
+
+  .wrapper .scenery {
+    inset: 0 auto 0 50%;
+    display: block;
+    width: min(100%, 2560px);
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .wrapper:not([data-section-scene="harbor"]) .scenery {
+    mask-image: linear-gradient(to right, #000 10%, transparent 34%, transparent 66%, #000 90%);
+  }
+
+  .wrapper .art {
+    top: 0;
+    bottom: auto;
+    left: calc(-1 * clamp(72px, 7cqw, 132px));
+    width: clamp(560px, 44cqw, 840px);
+    height: auto;
+    transform: none;
+  }
+
+  .image {
+    height: auto;
+    opacity: 0.5;
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 68%, transparent 96%);
+  }
+
+  .wrapper[data-section-scene="workflow"] .art,
+  .wrapper[data-section-scene="features"] .art {
+    right: calc(-1 * clamp(72px, 7cqw, 132px));
+    left: auto;
+  }
+
+  .wrapper[data-section-scene="workflow"] .image,
+  .wrapper[data-section-scene="features"] .image {
+    mask-image: linear-gradient(to right, transparent 4%, #000 32%, #000 88%, transparent);
+  }
+
+  .wrapper[data-section-scene="features"] .art {
+    /* Show the depot's front at the outer edge, instead of only its tanks.
+       Separate the two landmarks vertically to frame both rows of cards. */
+    --feature-scene-width: clamp(560px, 44cqw, 840px);
+    top: 144px;
+    right: calc(var(--feature-scene-width) * -0.35);
+  }
+
+  .wrapper[data-section-scene="features"] .featureCompanion {
+    top: 52%;
+    right: auto;
+    left: calc(var(--feature-scene-width) * -0.42);
+  }
+
+  .wrapper[data-section-scene="features"] .featureCompanion .image {
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 68%, transparent 96%);
+  }
+
+  .wrapper[data-section-scene="harbor"] .scenery {
+    inset-block-start: -260px;
+  }
+
+  .wrapper[data-section-scene="harbor"] .art {
+    top: auto;
+    right: -72px;
+    bottom: -24px;
+    left: auto;
+    width: clamp(560px, 42cqw, 800px);
+  }
+
+  .wrapper[data-section-scene="harbor"] .image {
+    opacity: 0.38;
+    mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 50%, transparent 94%);
+  }
+}
+
+@media (forced-colors: active) {
+  .wrapper[data-section-scene] .scenery {
+    display: none;
+  }
+
+  .wrapper[data-section-scene] .content {
+    padding-block-start: 0;
+  }
+}

@@ -1,0 +1,5 @@
+.accent { color: var(--nori-slate); }
+
+@media (forced-colors: active) {
+  .accent { color: CanvasText; }
+}

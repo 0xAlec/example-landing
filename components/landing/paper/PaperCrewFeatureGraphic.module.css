@@ -1,0 +1,203 @@
+.canvas {
+  --crew-ink: oklch(0.3 0.012 255);
+  --crew-muted: oklch(0.55 0.012 255);
+  --crew-line: oklch(0.35 0.015 255 / 0.22);
+  --crew-surface: oklch(0.17 0.012 255);
+  --crew-paper: oklch(0.965 0.006 95);
+  --crew-success: oklch(0.52 0.075 160);
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--crew-ink);
+  font-size: clamp(9px, 2.5cqw, 11px);
+  line-height: 1.4;
+}
+
+.canvas [data-tone="peach"] { --accent: oklch(0.77 0.07 50); --task-surface: oklch(0.23 0.028 50); }
+.canvas [data-tone="mint"] { --accent: oklch(0.77 0.06 160); --task-surface: oklch(0.23 0.025 160); }
+.canvas [data-tone="lavender"] { --accent: oklch(0.77 0.065 295); --task-surface: oklch(0.23 0.025 295); }
+
+.configurationScene { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; pointer-events: none; }
+.configurationScene:first-child { opacity: 1; }
+.configuration { width: 88%; }
+.customizationMap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr); align-items: center; gap: 4cqw; }
+.toolCollection, .skillCollection { --crew-line: var(--feature-diagram-line, oklch(0.35 0.015 255 / 0.22)); position: relative; display: grid; gap: 8px; }
+.collectionLabel { position: absolute; bottom: calc(100% + 9px); left: 0; color: var(--feature-canvas-muted, var(--crew-muted)); font-size: 0.9em; }
+.toolCollection::after, .skillCollection::before { position: absolute; top: 50%; width: 4cqw; height: calc(50% + 4px); transform: translateY(-50%); background: linear-gradient(var(--crew-line), var(--crew-line)) left top / 50% 1px no-repeat, linear-gradient(var(--crew-line), var(--crew-line)) left bottom / 50% 1px no-repeat, linear-gradient(var(--crew-line), var(--crew-line)) center / 1px 100% no-repeat, linear-gradient(var(--crew-line), var(--crew-line)) right center / 50% 1px no-repeat; content: ""; }
+.toolCollection::after { left: 100%; }
+.skillCollection::before { right: 100%; transform: translateY(-50%) scaleX(-1); }
+.attachment { position: relative; z-index: 1; display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 34px; padding: 5px 7px; border-radius: 6px; background: var(--crew-paper); box-shadow: 0 0 0 1px oklch(0 0 0 / 0.075), 0 3px 5px oklch(0 0 0 / 0.035); white-space: nowrap; }
+.attachment > img { flex-shrink: 0; object-fit: contain; }
+.skillIcon { flex-shrink: 0; color: var(--crew-muted); }
+.attachmentState { display: grid; flex-shrink: 0; width: 12px; height: 12px; margin-left: auto; place-items: center; color: var(--crew-success); }
+.attachmentState svg { grid-area: 1 / 1; }
+.availableMark { color: var(--crew-muted); opacity: 0; }
+.coworkerCard { position: relative; display: grid; justify-items: center; padding: 12px 3px 13px; border-radius: 12px; background: var(--crew-surface); box-shadow: 0 0 0 1px oklch(1 0 0 / 0.12) inset, 0 7px 12px oklch(0 0 0 / 0.12); color: oklch(0.96 0.005 95); }
+.portraitHalo { display: grid; width: 55px; height: 55px; margin-bottom: 6px; place-items: center; border-radius: 50%; background: color-mix(in oklch, var(--accent) 12%, transparent); }
+.portraitHalo img { object-fit: contain; }
+.coworkerCard b { font-size: 1.2em; font-weight: 500; }
+.coworkerCard > span:not(.coworkerPort) { margin-top: 2px; color: oklch(0.7 0.01 255); font-size: 0.85em; }
+.coworkerPort { position: absolute; bottom: -3px; width: 6px; height: 6px; border: 1px solid var(--accent); border-radius: 50%; background: var(--crew-surface); }
+.instructionConnector { width: 1px; height: 24px; margin: 0 auto; background: var(--feature-diagram-line, var(--crew-line)); }
+.instructionCard { width: max-content; max-width: 100%; margin-inline: auto; padding: 10px 13px; border-radius: 7px; background: var(--crew-paper); box-shadow: 0 0 0 1px oklch(0 0 0 / 0.075), 0 4px 8px oklch(0 0 0 / 0.04); }
+.instructionHeader { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; color: var(--crew-muted); font-size: 0.85em; }
+.instructionText { display: flex; align-items: center; gap: 2px; }
+.editCaret { display: inline-block; width: 1px; height: 1em; background: var(--crew-muted); opacity: 0; }
+
+.orchestration { width: 86%; }
+.localSession { position: relative; z-index: 1; display: grid; width: min(100%, 360px); height: 54px; margin-inline: auto; place-items: center; }
+.localSession::before, .localSession::after { position: absolute; z-index: -1; inset: -13px; border-radius: 50%; opacity: 0; content: ""; pointer-events: none; }
+.localSession::before { background: radial-gradient(closest-side, oklch(0.68 0.13 285 / 0.45), transparent); }
+.localSession::after { background: radial-gradient(closest-side, oklch(0.67 0.1 160 / 0.5), transparent); }
+.orchestration:hover { --feature-play-state: paused; }
+.orchestrationRoutes { display: block; width: 100%; height: clamp(42px, 13cqw, 58px); overflow: visible; }
+.routeLine { vector-effect: non-scaling-stroke; stroke: var(--feature-diagram-line, var(--crew-line)); stroke-width: 1.2; stroke-linecap: round; }
+.flowHighlight { --flow-color: color-mix(in oklch, var(--accent) 75%, var(--feature-canvas-ink, var(--crew-ink))); }
+.flowHighlight[data-direction="inbound"] { --flow-color: var(--crew-success); }
+.flowHighlight path { stroke: var(--flow-color); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; vector-effect: non-scaling-stroke; opacity: 0; }
+.routeHighlight { stroke-width: 1.8; }
+.routeGlow { stroke-width: 7; stroke-opacity: 0.35; filter: blur(3px); }
+.remoteAgents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.remoteAgent { position: relative; display: grid; min-width: 0; margin-inline: 6px; padding: 14px 10px 16px; justify-items: center; border-radius: 12px; background: var(--crew-paper); box-shadow: 0 0 0 1px oklch(0 0 0 / 0.065), 0 4px 8px oklch(0 0 0 / 0.035); }
+.remoteAgent::after { position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 1px var(--accent), 0 0 14px color-mix(in oklch, var(--accent) 25%, transparent); opacity: 0; content: ""; pointer-events: none; }
+.agentPortrait { position: relative; display: grid; width: 50px; height: 50px; place-items: center; border-radius: 50%; background: color-mix(in oklch, var(--accent) 16%, transparent); }
+.agentPortrait img { object-fit: contain; }
+.taskName { margin-top: 10px; font-weight: 500; white-space: nowrap; }
+.taskOutput { display: grid; gap: 4px; width: 76%; margin-top: 13px; }
+.taskOutput i { display: block; height: 3px; border-radius: 2px; background: color-mix(in oklch, var(--accent) 36%, var(--crew-line)); transform-origin: left; }
+.taskOutput i:nth-child(2) { width: 82%; }
+.taskOutput i:nth-child(3) { width: 58%; }
+.agentComplete { position: absolute; display: grid; width: 16px; height: 16px; place-items: center; border-radius: 50%; background: oklch(0.8 0.07 160); box-shadow: 0 0 0 2px var(--crew-paper); color: oklch(0.3 0.04 160); }
+.agentComplete { right: -1px; bottom: -1px; }
+
+/* One configuration lasts four seconds. Attachments arrive before the next coworker. */
+@media (prefers-reduced-motion: no-preference) {
+  .configurationScene, .attachment, .attachedMark, .availableMark, .instructionText, .editCaret {
+    animation-duration: 12s;
+    animation-delay: var(--configuration-offset);
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-play-state: var(--feature-play-state, paused);
+  }
+  .configurationScene { animation-name: configurationCycle; }
+  /* Shared phase keeps the add sequence in sync when the carousel repeats. */
+  .attachment, .attachedMark, .availableMark { animation-timing-function: linear(0 0% var(--attach-start), 1 var(--attach-end) 96%, 0 97% 100%); }
+  .attachment { animation-name: attachModule; }
+  .attachedMark { animation-name: attachCheck; }
+  .availableMark { animation-name: attachPlus; }
+  .instructionText { animation-name: setInstruction; }
+  .editCaret { animation-name: editInstruction; }
+  .configurationCarousel:hover { --feature-play-state: paused; }
+  :global([data-paper-feature-motion="static"]) .canvas * { animation: none; }
+}
+
+@keyframes configurationCycle {
+  0%, 29% { opacity: 1; transform: translateY(0); }
+  32% { opacity: 0; transform: translateY(-5px); }
+  32.01%, 98% { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes attachModule { from { opacity: 0.45; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes attachCheck { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+@keyframes attachPlus { from { opacity: 1; } to { opacity: 0; } }
+@keyframes setInstruction { 0%, 8%, 97%, 100% { opacity: 0.3; transform: translateY(3px); } 11%, 96% { opacity: 1; transform: translateY(0); } }
+@keyframes editInstruction { 0%, 8%, 16%, 100% { opacity: 0; } 9%, 15% { opacity: 1; } }
+/* Connected clients assign work, the cards complete it, then results return.
+   A growing highlight traces each direction; no object travels along the line. */
+@media (prefers-reduced-motion: no-preference) {
+  .localSession::before, .localSession::after, .flowHighlight path,
+  .remoteAgent::after, .taskOutput i, .agentComplete {
+    animation-duration: 8s;
+    animation-delay: var(--task-phase, 0ms);
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-play-state: var(--feature-play-state, paused);
+  }
+  .localSession::before { animation-name: assignTasks; }
+  .localSession::after { animation-name: collectResults; }
+  .flowHighlight path { animation-timing-function: linear; }
+  .flowHighlight[data-direction="outbound"] path { animation-name: sendFlow; }
+  .flowHighlight[data-direction="inbound"] path { animation-name: returnFlow; }
+  .remoteAgent::after { animation-name: receiveTask; }
+  .taskOutput i { animation-name: writeTaskOutput; }
+  .taskOutput i:nth-child(2) { animation-delay: calc(var(--task-phase) + 150ms); }
+  .taskOutput i:nth-child(3) { animation-delay: calc(var(--task-phase) + 300ms); }
+  .agentComplete { animation-name: completeTask; }
+  :global([data-paper-feature-motion="static"]) .orchestration *,
+  :global([data-paper-feature-motion="static"]) .localSession::before,
+  :global([data-paper-feature-motion="static"]) .localSession::after,
+  :global([data-paper-feature-motion="static"]) .remoteAgent::after { animation: none; }
+}
+
+@keyframes assignTasks {
+  0%, 18%, 100% { opacity: 0; }
+  4%, 10% { opacity: 1; }
+}
+@keyframes sendFlow {
+  0%, 8% { opacity: 0; stroke-dashoffset: 100; }
+  10% { opacity: 0.9; stroke-dashoffset: 100; }
+  32%, 34% { opacity: 0.9; stroke-dashoffset: 0; }
+  39%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes receiveTask {
+  0%, 32%, 67%, 100% { opacity: 0; }
+  37%, 50% { opacity: 0.8; }
+  57% { opacity: 0.3; }
+}
+@keyframes returnFlow {
+  0%, 61% { opacity: 0; stroke-dashoffset: -100; }
+  62% { opacity: 0.9; stroke-dashoffset: -100; }
+  82%, 84% { opacity: 0.9; stroke-dashoffset: 0; }
+  89%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes collectResults {
+  0%, 82%, 98%, 100% { opacity: 0; }
+  88%, 92% { opacity: 1; }
+}
+@keyframes writeTaskOutput {
+  0%, 32%, 98%, 100% { opacity: 0.2; transform: scaleX(0.6); }
+  45%, 90% { opacity: 1; transform: scaleX(1); }
+}
+@keyframes completeTask {
+  0%, 49%, 100% { opacity: 0; }
+  55%, 94% { opacity: 1; }
+}
+
+@container (max-width: 360px) {
+  .configuration { width: 91%; }
+  .customizationMap { gap: 3cqw; }
+  .toolCollection::after, .skillCollection::before { width: 3cqw; height: calc(50% + 3px); }
+  .toolCollection, .skillCollection { gap: 6px; }
+  .attachment { gap: 4px; min-height: 29px; padding: 4px 5px; }
+  .attachment > img { width: 14px; height: 14px; }
+  .skillIcon { display: none; }
+  .attachmentState { width: 10px; }
+  .coworkerCard { padding-block: 10px; border-radius: 9px; }
+  .portraitHalo { width: 42px; height: 42px; margin-bottom: 4px; }
+  .portraitHalo img { width: 37px; height: 37px; }
+  .instructionConnector { height: 19px; }
+  .instructionCard { padding: 8px 10px; }
+  .orchestration { width: 91%; }
+  .localSession { height: 46px; }
+  .remoteAgent { margin-inline: 4px; padding: 11px 5px 13px; border-radius: 10px; }
+  .agentPortrait { width: 42px; height: 42px; }
+  .agentPortrait img { width: 36px; height: 36px; }
+  .taskName { margin-top: 8px; }
+  .taskOutput { margin-top: 10px; }
+  .agentComplete { width: 14px; height: 14px; }
+}
+
+@media (forced-colors: active) {
+  .attachment, .coworkerCard, .instructionCard, .remoteAgent { border: 1px solid CanvasText; background: Canvas; color: CanvasText; box-shadow: none; }
+  .canvas, .collectionLabel, .instructionHeader { color: CanvasText; }
+  .toolCollection::after, .skillCollection::before { border-block: 1px solid CanvasText; border-right: 1px solid CanvasText; background: none; }
+  .instructionConnector, .taskOutput i { background: CanvasText; }
+  .routeLine { stroke: CanvasText; }
+  .flowHighlight path { stroke: CanvasText; }
+  .routeGlow, .localSession::before, .localSession::after, .remoteAgent::after { display: none; }
+  .agentComplete { background: CanvasText; color: Canvas; box-shadow: 0 0 0 2px Canvas; }
+}

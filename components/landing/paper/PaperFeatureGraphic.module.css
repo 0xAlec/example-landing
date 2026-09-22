@@ -1,0 +1,1589 @@
+.graphic {
+  --feature-panel-surface: var(
+    --feature-panel-background,
+    radial-gradient(
+      120% 110% at 50% 35%,
+      oklch(0.943 0.008 91.485) 0%,
+      oklch(0.924 0.007 97.357) 65%,
+      oklch(0.902 0.003 128.496) 100%
+    )
+  );
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--feature-panel-surface);
+  color: oklch(0.2 0.02 259);
+  container-type: inline-size;
+  font-family: var(--font-sans), Geist, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(9px, 2.2cqw, 12px);
+}
+
+.graphic::after {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 40px oklch(0.283 0.021 257.277 / 0.045),
+    inset 0 1px 0 oklch(1 0 0 / 0.08);
+  content: "";
+  pointer-events: none;
+}
+
+.canvas {
+  --canvas-bg: var(--feature-panel-base, oklch(0.924 0.003 128.495));
+  --canvas-ink: oklch(0.23 0.035 263);
+  --canvas-muted: oklch(0.53 0.032 263);
+  --canvas-line: oklch(0.56 0.08 276 / 0.28);
+  --canvas-accent: oklch(0.58 0.17 276);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--feature-panel-surface);
+  color: var(--canvas-ink);
+}
+
+.canvas::after {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.7'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  content: "";
+  mix-blend-mode: multiply;
+  opacity: 0.016;
+  pointer-events: none;
+}
+
+.canvas[data-variant="automations"],
+.canvas[data-variant="visibility"] {
+  --scenario-shell: oklch(0.16 0.012 255 / 0.96);
+  --scenario-raised: oklch(0.21 0.014 255 / 0.98);
+  --scenario-text: oklch(0.98 0.005 250);
+  --scenario-muted: oklch(0.7 0.018 255);
+  --scenario-success: oklch(0.74 0.13 150);
+}
+
+.canvas[data-variant="automations"] {
+  --scenario-rail: oklch(0.51 0.12 276 / 0.5);
+  background: var(--feature-panel-surface);
+}
+
+.canvas[data-variant="orchestration"] {
+  --thread-shell-strong: oklch(0.135 0.012 255);
+  --thread-shell: oklch(0.16 0.012 255 / 0.96);
+  --thread-raised: oklch(0.21 0.014 255 / 0.98);
+  --thread-text: oklch(0.98 0.005 250);
+  --thread-muted: oklch(0.72 0.018 255);
+  --thread-subtle: oklch(0.62 0.016 255);
+  --thread-line: oklch(1 0 0 / 0.12);
+  --thread-role-coordinator: oklch(0.74 0.158 305);
+  --thread-role-backend: oklch(0.74 0.126 260);
+  --thread-role-frontend: oklch(0.86 0.065 270);
+  --thread-role-reviewer: oklch(0.74 0.218 145);
+  --thread-success: oklch(0.74 0.13 150);
+  --canvas-ink: var(--thread-text);
+  --canvas-muted: var(--thread-muted);
+  --canvas-line: var(--thread-line);
+  --canvas-accent: var(--thread-role-coordinator);
+}
+
+.canvas[data-variant="orchestration"] {
+  --canvas-ink: oklch(0.23 0.035 245);
+  --canvas-muted: oklch(0.49 0.04 245);
+  --canvas-line: oklch(0.42 0.07 240 / 0.2);
+  --vignette-rail: oklch(0.46 0.09 240 / 0.52);
+  background: var(--feature-panel-surface);
+}
+
+.canvas[data-variant="improvement"] {
+  --canvas-ink: oklch(0.23 0.03 150);
+  --canvas-muted: oklch(0.48 0.035 150);
+  --canvas-line: oklch(0.37 0.055 150 / 0.2);
+  background: var(--feature-panel-surface);
+}
+
+.canvas[data-variant="automations"]::before,
+.canvas[data-variant="customization"]::before,
+.canvas[data-variant="orchestration"]::before,
+.canvas[data-variant="visibility"]::before,
+.canvas[data-variant="improvement"]::before {
+  background-image: none;
+  opacity: 0;
+}
+
+.canvas[data-variant="orchestration"] .threadWindow {
+  inset: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.canvas[data-variant="orchestration"] .threadBody {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  transform: scale(1.09);
+  transform-origin: center;
+}
+
+.orchestrationRail {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform: scale(1.09);
+  transform-origin: center;
+}
+
+.orchestrationRail path {
+  fill: none;
+  opacity: 0;
+  stroke: var(--vignette-rail);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.scenarioRail {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scenarioRail path {
+  fill: none;
+  stroke: var(--scenario-rail);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.scenarioCard {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: clamp(26px, 7cqw, 32px) minmax(0, 1fr) 13px;
+  align-items: center;
+  gap: clamp(5px, 1.5cqw, 8px);
+  padding: clamp(5px, 1.4cqw, 7px);
+  border-radius: 12px;
+  background: var(--scenario-shell);
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 0.1),
+    0 12px 24px oklch(0 0 0 / 0.15);
+  color: var(--scenario-text);
+}
+
+.scenarioCard > i {
+  display: grid;
+  width: clamp(26px, 7cqw, 32px);
+  height: clamp(26px, 7cqw, 32px);
+  place-items: center;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--canvas-accent) 16%, transparent);
+  color: var(--canvas-accent);
+}
+
+.scenarioCard > i svg {
+  width: clamp(13px, 3.8cqw, 18px);
+  height: clamp(13px, 3.8cqw, 18px);
+  fill: currentColor;
+}
+
+.scenarioCard > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.scenarioCard small,
+.scenarioCard b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scenarioCard small {
+  color: var(--scenario-muted);
+  font-size: clamp(5.5px, 1.5cqw, 7.5px);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.scenarioCard b {
+  color: var(--scenario-text);
+  font-size: clamp(7px, 1.9cqw, 9.5px);
+  font-weight: 690;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.scenarioCard > svg {
+  width: 13px;
+  height: 13px;
+  color: var(--scenario-success);
+}
+
+.automationOrbit {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 48cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+
+.automationOrbitRing,
+.automationOrbiters {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.automationOrbitRing {
+  box-shadow:
+    0 0 0 1px var(--scenario-rail),
+    0 0 32px oklch(0.58 0.17 276 / 0.12);
+}
+
+.automationOrbiter {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+}
+
+.automationOrbiter[data-automation-brand="linear"] {
+  top: 0;
+  left: 50%;
+}
+
+.automationOrbiter[data-automation-brand="datadog"] {
+  top: 50%;
+  left: 100%;
+}
+
+.automationOrbiter[data-automation-brand="github"] {
+  top: 100%;
+  left: 50%;
+}
+
+.automationOrbiter[data-automation-brand="slack"] {
+  top: 50%;
+  left: 0;
+}
+
+.automationOrbiter > i {
+  display: grid;
+  width: clamp(32px, 10cqw, 46px);
+  height: clamp(32px, 10cqw, 46px);
+  place-items: center;
+  border-radius: clamp(9px, 2.4cqw, 12px);
+  background: var(--scenario-raised);
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 0.12),
+    0 10px 20px oklch(0 0 0 / 0.18);
+}
+
+.automationOrbiter > i img {
+  width: clamp(16px, 4.6cqw, 22px);
+  height: clamp(16px, 4.6cqw, 22px);
+  object-fit: contain;
+}
+
+.automationOrbiter[data-automation-brand] > i {
+  background: oklch(0.98 0 0);
+}
+
+.automationHub {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: clamp(78px, 18cqw, 96px);
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--scenario-text);
+  isolation: isolate;
+  transform: translate(-50%, -50%);
+}
+
+.automationHubProgress {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform: rotate(-90deg);
+}
+
+.automationHubProgress circle {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.automationHubProgressTrack {
+  stroke: oklch(0.75 0.13 276 / 0.3);
+  stroke-width: 1.5;
+}
+
+.automationHubProgressFill {
+  stroke: var(--scenario-success);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  stroke-width: 2.75;
+  filter: drop-shadow(0 0 4px oklch(0.72 0.16 150 / 0.42));
+}
+
+.automationHubDial {
+  position: absolute;
+  z-index: 1;
+  inset: 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 50% 16%,
+      oklch(0.78 0.13 276 / 0.2),
+      transparent 46%
+    ),
+    var(--scenario-shell);
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 0.09),
+    0 15px 30px oklch(0 0 0 / 0.24),
+    inset 0 1px 0 oklch(1 0 0 / 0.08);
+}
+
+.automationHubSchedule {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(2px, 0.55cqw, 3px);
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.automationHubSchedule small {
+  color: var(--scenario-muted);
+  font-size: clamp(5.5px, 1.35cqw, 7px);
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.automationHubTime {
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 0.7cqw, 4px);
+}
+
+.automationHubTime svg {
+  width: clamp(13px, 3.2cqw, 17px);
+  height: clamp(13px, 3.2cqw, 17px);
+  color: oklch(0.8 0.13 276);
+}
+
+.automationHubComplete {
+  position: absolute;
+  width: clamp(38px, 9cqw, 48px);
+  height: clamp(38px, 9cqw, 48px);
+  color: var(--scenario-success);
+  filter: blur(4px);
+  opacity: 0;
+  transform: scale(0.25);
+}
+
+.automationHubTime b {
+  color: var(--scenario-text);
+  font-size: clamp(11px, 2.8cqw, 14px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 730;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.automationHubSchedule em {
+  color: var(--scenario-muted);
+  font-size: clamp(5.5px, 1.35cqw, 7px);
+  font-style: normal;
+  font-weight: 630;
+  line-height: 1;
+}
+
+.runRecordCard {
+  inset: 7% auto auto 27%;
+  width: 46%;
+  height: clamp(44px, 11.5cqw, 56px);
+  overflow: hidden;
+}
+
+.runRecordCard::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(1 0 0 / 0.11),
+    transparent
+  );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-140%);
+}
+
+.visibilityScenarioCard {
+  --visibility-delay: 0s;
+  width: 42%;
+  height: clamp(40px, 11cqw, 54px);
+}
+
+.visibilityScenarioCard::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 1.5px oklch(0.7 0.15 48 / 0.72),
+    0 0 22px oklch(0.62 0.16 48 / 0.2);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+.visibilityScenarioCard[data-visibility-step="permissions"] {
+  --visibility-delay: 0s;
+  inset: 38% auto auto 5%;
+}
+
+.visibilityScenarioCard[data-visibility-step="cost"] {
+  --visibility-delay: 1.45s;
+  inset: 38% 5% auto auto;
+}
+
+.visibilityScenarioCard[data-visibility-step="evidence"] {
+  --visibility-delay: 2.9s;
+  inset: 70% auto auto 5%;
+}
+
+.visibilityScenarioCard[data-visibility-step="decision"] {
+  --visibility-delay: 4.35s;
+  inset: 70% 5% auto auto;
+}
+
+.visibilityRailBase path {
+  opacity: 0.72;
+}
+
+.visibilityRailFlow path {
+  --visibility-delay: 0s;
+  opacity: 0;
+  stroke: oklch(0.68 0.16 48);
+  stroke-dasharray: 0.14 0.86;
+  stroke-dashoffset: 1;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 3px oklch(0.68 0.16 48 / 0.42));
+}
+
+.visibilityRailFlow path[data-visibility-step="cost"] {
+  --visibility-delay: 1.45s;
+}
+
+.visibilityRailFlow path[data-visibility-step="evidence"] {
+  --visibility-delay: 2.9s;
+}
+
+.visibilityRailFlow path[data-visibility-step="decision"] {
+  --visibility-delay: 4.35s;
+}
+
+.canvas[data-variant="orchestration"] .threadReplies,
+.canvas[data-variant="orchestration"] .threadReply,
+.canvas[data-variant="orchestration"] .threadReply > .threadReplies {
+  position: static;
+  margin: 0;
+  padding: 0;
+}
+
+.canvas[data-variant="orchestration"] .threadReplies::before,
+.canvas[data-variant="orchestration"] .threadReply::before,
+.canvas[data-variant="orchestration"] .threadReply::after {
+  content: none;
+}
+
+.canvas[data-variant="orchestration"] .threadMessage {
+  position: absolute;
+  z-index: 3;
+  min-height: 0;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 12px;
+  background: var(--thread-shell);
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 0.1),
+    0 12px 24px oklch(0 0 0 / 0.15);
+}
+
+.canvas[data-variant="orchestration"] .threadMessage[data-turn="brief"] {
+  inset: 7% auto auto 5%;
+  width: 54%;
+}
+
+.canvas[data-variant="orchestration"] .threadMessage:not([data-turn="brief"]) {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.canvas[data-variant="orchestration"] .threadMessage[data-turn="build"] {
+  inset: 32% 5% auto auto;
+  width: 54%;
+}
+
+.canvas[data-variant="orchestration"] .threadMessage[data-turn="review"] {
+  inset: 57% auto auto 7%;
+  width: 54%;
+}
+
+.canvas[data-variant="orchestration"] .threadMessage[data-turn="resolve"] {
+  inset: 78% 5% auto auto;
+  width: 54%;
+  margin: 0;
+  background: color-mix(
+    in oklch,
+    var(--thread-role-coordinator) 8%,
+    var(--thread-shell)
+  );
+}
+
+.improvementField {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  transform: scale(1.09);
+  transform-origin: center;
+}
+
+.improvementFieldCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.improvementAscentCursor {
+  position: absolute;
+  z-index: 4;
+  width: clamp(8px, 1.7cqw, 10px);
+  height: clamp(8px, 1.7cqw, 10px);
+  border-radius: 50%;
+  background: oklch(0.7 0.2 145);
+  box-shadow:
+    0 0 0 2px oklch(1 0 0 / 0.86),
+    0 0 0 4px oklch(0.6 0.17 145 / 0.12),
+    0 3px 9px oklch(0.3 0.12 145 / 0.2),
+    0 0 15px oklch(0.66 0.2 145 / 0.3);
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.canvas[data-variant="visibility"] {
+  --canvas-bg: oklch(0.93 0.035 68);
+  --canvas-line: oklch(0.6 0.1 56 / 0.27);
+  --canvas-accent: oklch(0.62 0.16 48);
+  --scenario-rail: oklch(0.57 0.12 48 / 0.5);
+}
+
+.canvas[data-variant="customization"] {
+  --customization-accent: oklch(0.78 0.13 205);
+  --customization-line: oklch(1 0 0 / 0.12);
+  --customization-muted: oklch(0.7 0.006 265);
+  --customization-raised: oklch(0.18 0.004 265);
+  --customization-shell: oklch(0.12 0.004 265);
+  --customization-text: oklch(0.97 0.002 265);
+  --customization-menu: oklch(0.11 0.003 265);
+  --customization-menu-deep: oklch(0.075 0.002 265);
+  --customization-option: oklch(0.155 0.003 265);
+  background: var(--feature-panel-surface);
+}
+
+.modelProviderMark {
+  display: block;
+  width: clamp(11px, 1.7cqw, 15px);
+  height: clamp(11px, 1.7cqw, 15px);
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+.modelProviderMark[data-provider="openai"] {
+  mask-image: url("/logos/openai.svg");
+  -webkit-mask-image: url("/logos/openai.svg");
+}
+
+.modelProviderMark[data-model="gpt-5.6-sol"] {
+  background: linear-gradient(
+    135deg in oklch,
+    oklch(0.598 0.256 298.862),
+    oklch(0.844 0.199 156.833)
+  );
+}
+
+.modelProviderMark[data-model="gpt-5.6-terra"] {
+  background: linear-gradient(
+    135deg in oklch,
+    oklch(0.403 0.172 264.304) 0%,
+    oklch(0.741 0.163 147.216) 52%,
+    oklch(0.664 0.163 259.934) 100%
+  );
+}
+
+.modelProviderMark[data-model="gpt-5.6-luna"] {
+  background: linear-gradient(
+    135deg in oklch,
+    oklch(0.288 0.08 265.177) 0%,
+    oklch(0.708 0.197 46.304) 36%,
+    oklch(0.891 0.166 94.066) 100%
+  );
+}
+
+.customizationCarousel {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+}
+
+.customizationReels {
+  --customization-reel-step: clamp(48px, 11.9cqw, 58px);
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: min(84%, 430px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(7px, 1.8cqw, 11px);
+  transform: scale(1.1);
+  transform-origin: center;
+}
+
+.customizationReel {
+  --customization-reel-delay: 0s;
+  --customization-reel-direction: normal;
+  --customization-reel-duration: 10.8s;
+  display: grid;
+  min-width: 0;
+  gap: clamp(6px, 1.4cqw, 9px);
+}
+
+.customizationReel[data-customization-reel="reasoning"] {
+  --customization-reel-delay: -3.4s;
+  --customization-reel-direction: reverse;
+  --customization-reel-duration: 12.6s;
+}
+
+.customizationReel[data-customization-reel="skill"] {
+  --customization-reel-delay: -1.8s;
+  --customization-reel-duration: 8.8s;
+}
+
+.customizationReelLabel {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1cqw, 7px);
+  color: oklch(0.39 0.055 291);
+}
+
+.customizationReelLabel > i {
+  display: grid;
+  width: clamp(20px, 4.6cqw, 26px);
+  height: clamp(20px, 4.6cqw, 26px);
+  place-items: center;
+  border-radius: 8px;
+  background: oklch(0.96 0.015 316 / 0.78);
+  box-shadow:
+    0 0 0 1px oklch(0.45 0.08 300 / 0.1),
+    0 5px 14px oklch(0.35 0.08 305 / 0.09);
+  color: oklch(0.56 0.14 296);
+}
+
+.customizationReelLabel svg {
+  width: clamp(10px, 2.2cqw, 13px);
+  height: clamp(10px, 2.2cqw, 13px);
+  fill: none;
+  stroke-width: 1.7;
+}
+
+.customizationReelLabel b {
+  overflow: hidden;
+  font-size: clamp(6px, 1.4cqw, 8.5px);
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.customizationReelWindow {
+  position: relative;
+  height: clamp(150px, 36cqw, 178px);
+  overflow: hidden;
+  border-radius: 18px;
+  background: oklch(0.965 0.012 318 / 0.42);
+  box-shadow:
+    inset 0 0 0 1px oklch(0.4 0.07 300 / 0.1),
+    0 18px 30px oklch(0.35 0.08 305 / 0.08);
+}
+
+.customizationReelTrack {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  left: 4px;
+  display: grid;
+  grid-auto-rows: var(--customization-reel-step);
+  transform: translateY(-25%);
+}
+
+.customizationReelItem {
+  display: grid;
+  min-width: 0;
+  height: calc(var(--customization-reel-step) - 8px);
+  grid-template-columns: clamp(24px, 5.6cqw, 31px) minmax(0, 1fr);
+  align-self: center;
+  align-items: center;
+  gap: clamp(5px, 1.2cqw, 8px);
+  padding: clamp(4px, 1cqw, 6px);
+  border-radius: 13px;
+  background: oklch(0.17 0.018 282 / 0.97);
+  box-shadow:
+    0 0 0 1px oklch(1 0 0 / 0.12),
+    0 10px 24px oklch(0.28 0.06 295 / 0.2);
+  color: oklch(0.98 0.006 300);
+}
+
+.customizationItemMark {
+  display: grid;
+  width: clamp(24px, 5.6cqw, 31px);
+  height: clamp(24px, 5.6cqw, 31px);
+  place-items: center;
+  border-radius: 9px;
+  background: oklch(1 0 0 / 0.07);
+  box-shadow: 0 0 0 1px oklch(1 0 0 / 0.1);
+  color: oklch(0.76 0.15 299);
+}
+
+.customizationItemMark[data-reasoning-level="Medium"] {
+  color: oklch(0.84 0.1 145);
+}
+
+.customizationItemMark[data-reasoning-level="High"] {
+  color: oklch(0.82 0.12 300);
+}
+
+.customizationItemMark[data-reasoning-level="Extra high"] {
+  color: oklch(0.86 0.12 82);
+}
+
+.customizationItemMark[data-skill="review.md"] {
+  color: oklch(0.84 0.1 145);
+}
+
+.customizationItemMark[data-skill="parallel.md"] {
+  color: oklch(0.82 0.12 245);
+}
+
+.customizationItemMark[data-skill="ui-craft.md"] {
+  color: oklch(0.84 0.12 47);
+}
+
+.customizationItemMark > svg {
+  width: clamp(13px, 2.9cqw, 16px);
+  height: clamp(13px, 2.9cqw, 16px);
+}
+
+.customizationItemMark .modelProviderMark {
+  width: clamp(12px, 2.7cqw, 15px);
+  height: clamp(12px, 2.7cqw, 15px);
+}
+
+.customizationReelItem > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.customizationReelItem b,
+.customizationReelItem small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customizationReelItem b {
+  font-size: clamp(6.7px, 1.45cqw, 9px);
+  font-weight: 690;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.customizationReelItem small {
+  color: oklch(0.74 0.025 285);
+  font-size: clamp(5.2px, 1.05cqw, 6.7px);
+  font-weight: 560;
+  line-height: 1;
+}
+
+.canvas::before {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(1 0 0 / 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 0.13) 1px, transparent 1px);
+  background-size: 44px 44px;
+  content: "";
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 24%,
+    black 76%,
+    transparent
+  );
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.threadWindow {
+  position: absolute;
+  z-index: 2;
+  inset: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--thread-shell);
+  box-shadow:
+    0 0 0 1px var(--thread-line),
+    0 12px 28px oklch(0 0 0 / 0.2);
+  color: var(--thread-text);
+}
+
+.threadHeader {
+  display: flex;
+  height: 40px;
+  flex: none;
+  align-items: center;
+  justify-content: flex-start;
+  padding-inline: 14px;
+  box-shadow: 0 -1px 0 var(--thread-line) inset;
+  background: var(--thread-raised);
+}
+
+.threadChannel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.threadChannel > i {
+  flex: none;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1;
+  transform: translateY(0.5px);
+}
+
+.threadChannel b {
+  color: var(--thread-text);
+  font-size: 10.5px;
+  font-weight: 690;
+  letter-spacing: -0.01em;
+}
+
+.threadBody {
+  min-height: 0;
+  flex: 1;
+  padding: 8px 14px 10px;
+}
+
+.threadBody > .threadMessage {
+  min-height: 38px;
+}
+
+.threadReplies {
+  position: relative;
+  margin-inline-start: 14px;
+  padding-inline-start: 20px;
+}
+
+.threadReplies::before {
+  position: absolute;
+  inset: -2px auto 19px 0;
+  width: 1px;
+  background: var(--thread-line);
+  content: "";
+}
+
+.threadReply {
+  position: relative;
+  min-width: 0;
+}
+
+.threadReply::before {
+  position: absolute;
+  inset: 18px auto auto -20px;
+  width: 20px;
+  height: 1px;
+  background: var(--thread-line);
+  content: "";
+}
+
+.threadReply > .threadReplies {
+  margin-inline-start: 14px;
+  padding-inline-start: 18px;
+}
+
+.threadReply > .threadReplies::before {
+  inset-block-end: 18px;
+}
+
+.threadReply > .threadReplies .threadReply::before {
+  inset-inline-start: -18px;
+  width: 18px;
+}
+
+.threadReply > .threadMessage {
+  min-height: 38px;
+}
+
+.threadReply:last-child > .threadMessage[data-turn="resolve"] {
+  margin-block-start: 2px;
+}
+
+.threadReply:last-child::after {
+  position: absolute;
+  inset: 19px auto 0 -20px;
+  width: 1px;
+  background: var(--thread-shell);
+  content: "";
+}
+
+.threadReply > .threadReplies .threadReply:last-child::after {
+  inset-inline-start: -18px;
+}
+
+.threadMessage {
+  --thread-role: var(--thread-muted);
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.threadMessage[data-role="coordinator"] {
+  --thread-role: var(--thread-role-coordinator);
+}
+
+.threadMessage[data-role="backend"] {
+  --thread-role: var(--thread-role-backend);
+}
+
+.threadMessage[data-role="frontend"] {
+  --thread-role: var(--thread-role-frontend);
+}
+
+.threadMessage[data-role="reviewer"] {
+  --thread-role: var(--thread-role-reviewer);
+}
+
+.threadMessage[data-turn="resolve"] {
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: color-mix(in oklch, var(--thread-role) 8%, var(--thread-raised));
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--thread-role) 25%, transparent);
+}
+
+.threadMessage[data-message-kind="skill-proposal"] {
+  min-height: 54px;
+}
+
+.agentAvatar {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 7px;
+  box-shadow: 0 0 0 1px oklch(1 0 0 / 0.1);
+}
+
+.agentAvatar[data-agent="nori"] {
+  background: color-mix(
+    in oklch,
+    var(--thread-role-coordinator) 20%,
+    var(--thread-raised)
+  );
+}
+
+.agentAvatar[data-agent="piper"] {
+  background: color-mix(
+    in oklch,
+    var(--thread-role-backend) 20%,
+    var(--thread-raised)
+  );
+}
+
+.agentAvatar[data-agent="kiko"] {
+  background: color-mix(
+    in oklch,
+    var(--thread-role-frontend) 20%,
+    var(--thread-raised)
+  );
+}
+
+.agentAvatar[data-agent="moss"] {
+  background: color-mix(
+    in oklch,
+    var(--thread-role-reviewer) 20%,
+    var(--thread-raised)
+  );
+}
+
+.agentAvatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.threadCopy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.threadMeta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+  line-height: 1;
+}
+
+.threadMeta b {
+  color: var(--thread-role);
+  font-size: 9.5px;
+  font-weight: 710;
+}
+
+.threadMeta em {
+  display: inline-flex;
+  min-height: 16px;
+  align-items: center;
+  gap: 3px;
+  padding-inline: 5px 6px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--thread-role) 20%, transparent);
+  color: var(--thread-role);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.threadMeta em svg {
+  width: 9px;
+  height: 9px;
+  flex: none;
+}
+
+.threadMeta time {
+  margin-inline-start: auto;
+  color: var(--thread-subtle);
+  font-size: 7px;
+}
+
+.threadText {
+  overflow: hidden;
+  color: var(--thread-text);
+  font-size: 9px;
+  line-height: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.humanMention {
+  display: inline-flex;
+  min-height: 16px;
+  align-items: center;
+  margin-inline: 1px;
+  padding-inline: 5px;
+  border-radius: 5px;
+  background: color-mix(
+    in oklch,
+    var(--thread-role-coordinator) 18%,
+    transparent
+  );
+  box-shadow: 0 0 0 1px
+    color-mix(in oklch, var(--thread-role-coordinator) 36%, transparent);
+  color: color-mix(in oklch, var(--thread-role-coordinator) 88%, white);
+  font-weight: 720;
+  line-height: 16px;
+  vertical-align: baseline;
+}
+
+.threadDone {
+  width: 13px;
+  height: 13px;
+  margin-inline-start: auto;
+  color: var(--thread-success);
+}
+
+.skillProposalInline {
+  display: grid;
+  min-width: 0;
+  min-height: 32px;
+  grid-template-columns: 24px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 4px;
+  border-radius: 7px;
+  background: color-mix(
+    in oklch,
+    var(--thread-role-frontend) 8%,
+    var(--thread-raised)
+  );
+  box-shadow: 0 0 0 1px
+    color-mix(in oklch, var(--thread-role-frontend) 24%, transparent);
+}
+
+.skillProposalInline > i {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 6px;
+  background: color-mix(in oklch, var(--thread-role-frontend) 16%, transparent);
+  color: var(--thread-role-frontend);
+}
+
+.skillProposalInline > i svg {
+  width: 13px;
+  height: 13px;
+}
+
+.skillProposalInline > span {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.skillProposalInline small {
+  overflow: hidden;
+  color: var(--thread-role-frontend);
+  font-size: 6px;
+  font-weight: 720;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.skillProposalInline b {
+  overflow: hidden;
+  color: var(--thread-text);
+  font-size: 8.5px;
+  font-weight: 690;
+  line-height: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skillProposalInline > svg {
+  width: 13px;
+  height: 13px;
+  color: var(--thread-subtle);
+}
+
+@media (max-width: 520px) {
+  .threadWindow {
+    inset: 8px 10px;
+  }
+  .threadHeader {
+    height: 34px;
+  }
+  .threadHeader {
+    padding-inline: 10px;
+  }
+  .threadChannel {
+    gap: 6px;
+  }
+  .threadChannel > i {
+    font-size: 14px;
+  }
+  .threadChannel b {
+    font-size: 9.5px;
+  }
+  .threadBody {
+    padding: 5px 10px 6px;
+  }
+  .threadBody > .threadMessage,
+  .threadReply > .threadMessage {
+    min-height: 28px;
+  }
+  .threadMessage[data-message-kind="skill-proposal"] {
+    min-height: 40px;
+  }
+  .threadReplies {
+    margin-inline-start: 12px;
+    padding-inline-start: 16px;
+  }
+  .threadReplies::before {
+    inset: -1px auto 15px 0;
+  }
+  .threadReply::before {
+    inset: 14px auto auto -16px;
+    width: 16px;
+  }
+  .threadReply:last-child::after {
+    inset: 15px auto 0 -16px;
+  }
+  .threadReply > .threadReplies {
+    margin-inline-start: 12px;
+    padding-inline-start: 15px;
+  }
+  .threadReply > .threadReplies::before {
+    inset-block-end: 14px;
+  }
+  .threadReply > .threadReplies .threadReply::before {
+    inset-inline-start: -15px;
+    width: 15px;
+  }
+  .threadReply > .threadReplies .threadReply:last-child::after {
+    inset-inline-start: -15px;
+  }
+  .threadReply:last-child > .threadMessage[data-turn="resolve"] {
+    margin-block-start: 1px;
+  }
+  .threadMessage {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 6px;
+  }
+  .threadMessage[data-turn="resolve"] {
+    padding: 3px 6px;
+    border-radius: 6px;
+  }
+  .agentAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+  .threadCopy {
+    gap: 1px;
+  }
+  .threadMeta {
+    gap: 4px;
+  }
+  .threadMeta b {
+    font-size: 8.5px;
+  }
+  .threadMeta em {
+    min-height: 14px;
+    gap: 2px;
+    padding-inline: 4px 5px;
+    font-size: 6.3px;
+  }
+  .threadMeta em svg {
+    width: 8px;
+    height: 8px;
+  }
+  .threadMeta time {
+    font-size: 6px;
+  }
+  .threadText {
+    font-size: 7.5px;
+    line-height: 10px;
+  }
+  .threadDone {
+    width: 11px;
+    height: 11px;
+  }
+  .humanMention {
+    min-height: 14px;
+    padding-inline: 4px;
+    border-radius: 4px;
+    line-height: 14px;
+  }
+  .skillProposalInline {
+    min-height: 24px;
+    grid-template-columns: 18px minmax(0, 1fr) 11px;
+    gap: 4px;
+    padding: 2px 4px 2px 2px;
+    border-radius: 5px;
+  }
+  .skillProposalInline > i {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+  }
+  .skillProposalInline > i svg {
+    width: 10px;
+    height: 10px;
+  }
+  .skillProposalInline small {
+    font-size: 5px;
+  }
+  .skillProposalInline b {
+    font-size: 7px;
+    line-height: 9px;
+  }
+  .skillProposalInline > svg {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.graphic[data-paper-feature-motion="static"]
+  .canvas[data-variant="orchestration"]
+  .threadMessage:not([data-turn="brief"]) {
+  opacity: 1;
+  transform: none;
+}
+
+.graphic[data-paper-feature-motion="static"] .orchestrationRail path {
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+
+.graphic {
+  --feature-play-state: paused;
+}
+
+.graphic[data-paper-feature-motion="active"] {
+  --feature-play-state: running;
+}
+
+.graphic:not([data-paper-feature-motion="static"]) .automationHubProgressFill {
+  animation: automationProgress 6s cubic-bezier(0.2, 0, 0, 1) infinite;
+  animation-play-state: var(--feature-play-state);
+}
+
+.graphic:not([data-paper-feature-motion="static"]) .automationHubSchedule {
+  animation: automationSchedule 6s cubic-bezier(0.2, 0, 0, 1) infinite;
+  animation-play-state: var(--feature-play-state);
+}
+
+.graphic:not([data-paper-feature-motion="static"]) .automationHubComplete {
+  animation: automationComplete 6s cubic-bezier(0.2, 0, 0, 1) infinite;
+  animation-play-state: var(--feature-play-state);
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .canvas[data-variant="orchestration"]
+  .threadMessage:not([data-turn="brief"]) {
+  animation: orchestrationMessage 6s cubic-bezier(0.2, 0, 0, 1) infinite both;
+  animation-play-state: var(--feature-play-state);
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .canvas[data-variant="orchestration"]
+  .threadMessage[data-turn="build"] {
+  animation-delay: 320ms;
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .canvas[data-variant="orchestration"]
+  .threadMessage[data-turn="review"] {
+  animation-delay: 820ms;
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .canvas[data-variant="orchestration"]
+  .threadMessage[data-turn="resolve"] {
+  animation-delay: 1.32s;
+}
+
+.graphic:not([data-paper-feature-motion="static"]) .orchestrationRail path {
+  animation: orchestrationRail 6s cubic-bezier(0.2, 0, 0, 1) infinite both;
+  animation-play-state: var(--feature-play-state);
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .orchestrationRail
+  path[data-rail-step="build"] {
+  animation-delay: 80ms;
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .orchestrationRail
+  path[data-rail-step="review"] {
+  animation-delay: 580ms;
+}
+
+.graphic:not([data-paper-feature-motion="static"])
+  .orchestrationRail
+  path[data-rail-step="resolve"] {
+  animation-delay: 1.08s;
+}
+
+.graphic:not([data-paper-feature-motion="static"]) .customizationReelTrack {
+  animation: customizationReel var(--customization-reel-duration) linear
+    var(--customization-reel-delay) infinite var(--customization-reel-direction);
+  animation-play-state: var(--feature-play-state);
+}
+
+@keyframes automationProgress {
+  0%, 5%, 100% { stroke-dashoffset: 1; opacity: 1; }
+  35%, 76% { stroke-dashoffset: 0; opacity: 1; }
+  82% { stroke-dashoffset: 0; opacity: 0; }
+  88% { stroke-dashoffset: 1; opacity: 0; }
+}
+
+@keyframes automationSchedule {
+  0%, 30%, 90%, 100% { opacity: 1; transform: scale(1); filter: blur(0); }
+  35%, 80% { opacity: 0; transform: scale(0.25); filter: blur(4px); }
+}
+
+@keyframes automationComplete {
+  0%, 30%, 90%, 100% { opacity: 0; transform: scale(0.25); filter: blur(4px); }
+  35%, 80% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes orchestrationMessage {
+  0%, 100% { opacity: 0; transform: translateY(5px); }
+  6%, 65% { opacity: 1; transform: translateY(0); }
+  72% { opacity: 0; transform: translateY(3px); }
+}
+
+@keyframes orchestrationRail {
+  0%, 100% { opacity: 0; stroke-dashoffset: 1; }
+  7%, 68% { opacity: 1; stroke-dashoffset: 0; }
+  76% { opacity: 0; stroke-dashoffset: 0; }
+}
+
+@keyframes customizationReel {
+  from { transform: translateY(calc(-100% / 3)); }
+  to { transform: translateY(calc(-200% / 3)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graphic *,
+  .graphic *::before,
+  .graphic *::after {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .canvas[data-variant="orchestration"]
+    .threadMessage:not([data-turn="brief"]) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .orchestrationRail path {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .graphic::after,
+  .canvas::after {
+    display: none;
+  }
+
+  .graphic,
+  .canvas,
+  .canvas[data-variant="automations"],
+  .canvas[data-variant="customization"],
+  .canvas[data-variant="orchestration"],
+  .canvas[data-variant="improvement"],
+  .canvas[data-variant="visibility"],
+  .threadWindow,
+  .threadHeader,
+  .automationHub,
+  .automationHubDial,
+  .automationOrbiter > i,
+  .customizationReelLabel > i,
+  .customizationReelWindow,
+  .customizationReelItem,
+  .customizationItemMark,
+  .canvas[data-variant="orchestration"] .threadMessage,
+  .improvementAscentCursor,
+  .scenarioCard,
+  .scenarioCard > i,
+  .threadMessage[data-turn="resolve"],
+  .skillProposalInline,
+  .skillProposalInline > i {
+    background: Canvas;
+    box-shadow: none;
+    color: CanvasText;
+  }
+
+  .graphic {
+    border: 1px solid CanvasText;
+  }
+  .orchestrationRail path {
+    stroke: CanvasText;
+  }
+  .scenarioRail path {
+    stroke: CanvasText;
+  }
+  .automationOrbitRing {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+  .automationHubProgress circle {
+    stroke: CanvasText;
+  }
+  .agentAvatar {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+  .improvementFieldCanvas {
+    opacity: 0.58;
+  }
+}
