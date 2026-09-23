@@ -7,6 +7,7 @@ delivery:
   url: https://example-landing-five.vercel.app/
 environment:
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+  PLAYWRIGHT_BROWSERS_PATH: "0"
 services: []
 setup:
   - id: install
@@ -50,7 +51,9 @@ into `out/`; browser local storage owns the user's trip data.
 `package.json` and `package-lock.json` define Node >=22.12, npm, Next.js, React,
 TypeScript, and Playwright. Use Node 22 in cloud work. The install command
 enforces engine constraints. Installation needs the npm registry; browser setup
-needs Playwright's Chromium download host. Builds need Google Fonts for Geist
+needs Playwright's Chromium download host. `PLAYWRIGHT_BROWSERS_PATH=0` stores
+the browser in the project dependency directory, which persists between cloud
+commands. The temporary home cache does not persist. Builds need Google Fonts for Geist
 and Lora. The Desa Node 22 image includes Chromium's Linux system libraries.
 Do not substitute unverified browser executables or silently skip browser tests.
 
@@ -101,7 +104,7 @@ travel details, cross-device sync, or provider deployment status.
 | Requirement | Local evidence | Cloud behavior |
 | --- | --- | --- |
 | Node | Local shell uses Node 25; manifest permits Node >=22.12 | Node 22 profile; same scripts and lockfile |
-| Browser | Playwright-managed Chromium on macOS | Matching Chromium download and Linux libraries in the runtime |
+| Browser | Playwright-managed Chromium on macOS | Matching Chromium in project dependencies; Linux libraries in the runtime |
 | Saved data | Local storage on the person's device | Isolated test browser storage; no copy of personal data |
 | Fonts and assets | Geist, Lora, and local Lisbon artwork | Same build downloads and repository asset |
 | Application server | Loopback development server or static preview | Managed preview; tests start and clean up their own loopback server |
