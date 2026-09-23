@@ -1,3 +1,4 @@
+import { refreshSampleCopy } from "./sample-copy.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -73,4 +74,40 @@ test("day view sorts by time without changing saved order or other days", () => 
     trip.activities.map((a) => a.id),
     original,
   );
+});
+
+test("demo copy updates preserve personal text, activity state, and other trips", () => {
+  const planner = samplePlanner();
+  const trip = planner.trips[0];
+  trip.title = "A long weekend in Lisbon";
+  trip.activities[0].notes = "My booking number: abc";
+  trip.activities[1].title = "Get a little lost in Alfama";
+  trip.activities[1].notes =
+    "Winding streets, tiled houses, and no particular rush.";
+  trip.activities[1].time = "11:45";
+  trip.activities[1].done = true;
+  trip.activities[2].title = "Lunch with Sam";
+  trip.places[0].title = "A little tile hunting";
+  trip.notes = "Meet Sam on Thursday.";
+  planner.selectedDay = 2;
+  const custom = structuredClone(trip);
+  custom.id = "my-own-trip";
+  planner.trips.push(custom);
+  const original = structuredClone(planner);
+  const updated = refreshSampleCopy(planner);
+  assert.equal(updated.trips[0].title, "Lisbon weekend");
+  assert.equal(updated.trips[0].activities[1].title, "Walk through Alfama");
+  assert.equal(updated.trips[0].activities[1].notes, "");
+  assert.equal(updated.trips[0].activities[1].time, "11:45");
+  assert.equal(updated.trips[0].activities[1].done, true);
+  assert.equal(updated.trips[0].activities[0].notes, "My booking number: abc");
+  assert.equal(updated.trips[0].activities[2].title, "Lunch with Sam");
+  assert.equal(updated.trips[0].places[0].title, "Tile shops in Chiado");
+  assert.equal(updated.trips[0].notes, "Meet Sam on Thursday.");
+  assert.equal(updated.selectedDay, 2);
+  assert.deepEqual(updated.trips[1], custom);
+  assert.deepEqual(planner, original);
+  assert.deepEqual(refreshSampleCopy(updated), updated);
+  updated.trips[0].title = "My Lisbon visit";
+  assert.equal(refreshSampleCopy(updated).trips[0].title, "My Lisbon visit");
 });

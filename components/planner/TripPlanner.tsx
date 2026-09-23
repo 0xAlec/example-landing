@@ -47,6 +47,8 @@ import {
   type Trip,
 } from "@/lib/trips";
 
+import { refreshSampleCopy } from "@/lib/sample-copy";
+
 type Tab = "Itinerary" | "Saved places" | "Notes";
 type Modal =
   | { kind: "activity"; id?: string; place?: Place }
@@ -176,7 +178,7 @@ export function TripPlanner() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPlanner(parsePlanner(raw));
+      if (raw) setPlanner(refreshSampleCopy(parsePlanner(raw)));
     } catch {
       setCanSave(false);
       setStorageIssue(
