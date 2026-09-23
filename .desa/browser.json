@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "app": {
+    "run": "npm run dev -- --port \"$PORT\"",
+    "readyPath": "/",
+    "readyTimeoutSeconds": 120
+  },
+  "steps": [
+    {
+      "command": "resize",
+      "args": [
+        "1440",
+        "1080"
+      ]
+    },
+    {
+      "command": "goto",
+      "args": [
+        "${BASE_URL}"
+      ]
+    },
+    {
+      "command": "run-code",
+      "args": [
+        "async (page, checks) => {\nawait page.getByText('Saved on this device').waitFor();\nawait page.getByLabel('Item to pack').fill('Camera');\nawait page.getByRole('button', {name: 'Add packing item', exact:true}).click();\nawait page.getByRole('checkbox', {name:'Camera', exact:true}).check();\nawait page.reload();\nawait page.getByRole('checkbox', {name:'Camera', exact:true}).waitFor();\nif (!await page.getByRole('checkbox', {name:'Camera', exact:true}).isChecked()) throw Error('Packing state lost');\nawait page.getByRole('checkbox', {name:'Camera', exact:true}).uncheck();\nawait page.getByLabel('Item to pack').fill('Charger');\nawait page.getByRole('button', {name:'Add packing item', exact:true}).click();\nawait page.getByRole('button', {name:'Remove packing item: Charger', exact:true}).click();\nif (await page.locator('.packing-row').count() !== 1) throw Error('Remove failed');\nif (!await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) throw Error('Page overflow');\n}"
+      ]
+    },
+    {
+      "command": "screenshot",
+      "args": [],
+      "name": "packing-desktop"
+    },
+    {
+      "command": "resize",
+      "args": [
+        "390",
+        "844"
+      ]
+    },
+    {
+      "command": "run-code",
+      "args": [
+        "async (page, checks) => { await page.getByLabel('Item to pack').scrollIntoViewIfNeeded(); if (!await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) throw Error('Mobile overflow'); }"
+      ]
+    },
+    {
+      "command": "run-code",
+      "args": [
+        "async (page, checks) => {\nawait page.emulateMedia({ reducedMotion: 'reduce' });\nconst item = page.getByRole('checkbox', { name: 'Camera', exact: true });\nawait item.check();\nawait item.uncheck();\nconst transform = await page.locator('.packing-row').evaluate(el => getComputedStyle(el).transform);\nif (!checks.isIdentityTransform(transform)) throw Error('Packing row moved');\n}"
+      ]
+    },
+    {
+      "command": "screenshot",
+      "args": [],
+      "name": "packing-mobile"
+    }
+  ]
+}

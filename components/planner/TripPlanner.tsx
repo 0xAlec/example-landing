@@ -150,6 +150,8 @@ function Empty({
 
 export function TripPlanner() {
   const [planner, setPlanner] = useState<Planner>(samplePlanner);
+  const storedRaw = useRef<string | null>(null);
+  const savedPlanner = useRef<Planner | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [storageIssue, setStorageIssue] = useState("");
   const [canSave, setCanSave] = useState(true);
@@ -178,7 +180,12 @@ export function TripPlanner() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPlanner(refreshSampleCopy(parsePlanner(raw)));
+      storedRaw.current = raw;
+      if (raw !== null) {
+        const opened = refreshSampleCopy(parsePlanner(raw));
+        savedPlanner.current = opened;
+        setPlanner(opened);
+      }
     } catch {
       setCanSave(false);
       setStorageIssue(
@@ -188,9 +195,17 @@ export function TripPlanner() {
     setLoaded(true);
   }, []);
   useEffect(() => {
-    if (!loaded || !canSave) return;
+    if (!loaded || !canSave || planner === savedPlanner.current) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(planner));
+      if (localStorage.getItem(STORAGE_KEY) !== storedRaw.current) {
+        setCanSave(false);
+        setStorageIssue("Saved trips changed in another window. Your existing data has not been changed. Export these edits, then reload.");
+        return;
+      }
+      const raw = JSON.stringify(planner);
+      localStorage.setItem(STORAGE_KEY, raw);
+      storedRaw.current = raw;
+      savedPlanner.current = planner;
       setStorageIssue("");
     } catch {
       setStorageIssue(
@@ -278,6 +293,7 @@ export function TripPlanner() {
         activities: [],
         places: [],
         notes: "",
+        packingList: [],
         checklist: [
           { id: "stay", title: "Book a place to stay", done: false },
           { id: "travel", title: "Save travel tickets", done: false },
@@ -734,6 +750,40 @@ export function TripPlanner() {
                     </label>
                   ))}
                 </div>
+                <section className="packing-card" aria-labelledby="packing-title">
+                  <h3 id="packing-title">Packing list</h3>
+                  <form className="packing-form" key={trip.id} onSubmit={(event) => {
+                    event.preventDefault();
+                    const form = event.currentTarget;
+                    const title = String(new FormData(form).get("packingItem") ?? "").trim();
+                    if (!title || title.length > 150) return;
+                    const item = { id: crypto.randomUUID(), title, done: false };
+                    updateTrip((t) => ({ ...t, packingList: [...(t.packingList ?? []), item] }));
+                    form.reset();
+                  }}>
+                    <label htmlFor="packing-item">Item to pack</label>
+                    <div className="packing-input">
+                      <input id="packing-item" name="packingItem" required maxLength={150} placeholder="e.g. Phone charger" />
+                      <button className="icon-button" aria-label="Add packing item" type="submit"><Plus size={18} /></button>
+                    </div>
+                  </form>
+                  {!(trip.packingList ?? []).length && <p className="summary-count">No packing items yet.</p>}
+                  {(trip.packingList ?? []).map((item) => (
+                    <div className="packing-row" key={item.id}>
+                      <label className="checklist-row">
+                        <input type="checkbox" checked={item.done} onChange={() =>
+                          updateTrip((t) => ({ ...t, packingList: (t.packingList ?? []).map((c) =>
+                            c.id === item.id ? { ...c, done: !c.done } : c,
+                          ) }))
+                        } />
+                        <span>{item.title}</span>
+                      </label>
+                      <button className="icon-button" aria-label={`Remove packing item: ${item.title}`} onClick={() =>
+                        updateTrip((t) => ({ ...t, packingList: (t.packingList ?? []).filter((c) => c.id !== item.id) }))
+                      }><Trash2 size={16} /></button>
+                    </div>
+                  ))}
+                </section>
                 <p className="sample-note">
                   {trip.id === "lisbon" ? "Sample trip. " : ""}
                   Check opening hours and travel details before you go.

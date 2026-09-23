@@ -1242,3 +1242,14 @@ dialog textarea {
     scale: 1 !important;
   }
 }
+
+.packing-form { font-size: var(--text-label); }
+.packing-input, .packing-row { display: flex; align-items: center; gap: 8px; }
+.packing-input { margin: 8px 0; }
+.packing-input input {
+  width: 100%; min-width: 0; border: 1px solid var(--line);
+  border-radius: 6px; padding: 9px; background: white;
+}
+.packing-row .checklist-row { flex: 1; min-width: 0; }
+.packing-row span { overflow-wrap: anywhere; }
+.packing-row .icon-button, .packing-input .icon-button { flex-shrink: 0; }

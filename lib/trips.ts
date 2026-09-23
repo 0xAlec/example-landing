@@ -23,6 +23,7 @@ export type Place = {
   category: Category;
   notes: string;
 };
+export type PackingItem = { id: string; title: string; done: boolean };
 export type Trip = {
   id: string;
   title: string;
@@ -32,6 +33,7 @@ export type Trip = {
   activities: Activity[];
   places: Place[];
   notes: string;
+  packingList?: PackingItem[];
   checklist: { id: string; title: string; done: boolean }[];
 };
 export type Planner = {
@@ -134,6 +136,15 @@ function validTrip(value: unknown): value is Trip {
     )
   )
     return false;
+  if ("packingList" in value && (
+    !Array.isArray(value.packingList) ||
+    new Set(value.packingList.map((item) => record(item) ? item.id : undefined)).size !== value.packingList.length ||
+    !value.packingList.every((item) =>
+      record(item) && text(item.id, 100) && item.id.trim().length > 0 &&
+      text(item.title, 150) && item.title.trim().length > 0 &&
+      typeof item.done === "boolean"
+    )
+  )) return false;
   return [value.activities, value.places, value.checklist].every(
     (list) => new Set(list.map((item) => item.id)).size === list.length,
   );

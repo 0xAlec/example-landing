@@ -111,3 +111,30 @@ test("demo copy updates preserve personal text, activity state, and other trips"
   updated.trips[0].title = "My Lisbon visit";
   assert.equal(refreshSampleCopy(updated).trips[0].title, "My Lisbon visit");
 });
+
+test("packing lists preserve trip isolation, checked states, and legacy records", () => {
+  const planner = samplePlanner();
+  const legacy = structuredClone(planner.trips[0]);
+  legacy.id = "legacy";
+  planner.trips[0].packingList = [{ id: "camera", title: "Camera", done: true }];
+  planner.trips.push(legacy);
+  const restored = parsePlanner(JSON.stringify(planner));
+  assert.deepEqual(restored, planner);
+  assert.equal(restored.trips[1].packingList, undefined);
+  restored.trips[0].packingList![0].done = false;
+  assert.equal(restored.trips[1].packingList, undefined);
+});
+
+test("malformed packing lists reject the entire record without changing the input", () => {
+  const item = { id: "camera", title: "Camera", done: false };
+  for (const packingList of [null, {}, [null], [item, item],
+    [{ ...item, title: " " }], [{ ...item, title: "a".repeat(151) }],
+    [{ ...item, id: "" }], [{ ...item, done: "yes" }]]) {
+    const planner = { ...samplePlanner() };
+    Object.assign(planner.trips[0], { packingList });
+    const raw = JSON.stringify(planner);
+    assert.throws(() => parsePlanner(raw));
+    assert.equal(JSON.stringify(planner), raw);
+  }
+  assert.throws(() => parsePlanner(""));
+});

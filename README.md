@@ -10,6 +10,7 @@ identifiers so connected clients and deployment links continue to work.
 - Add, edit, move between days, and delete activities. Undo the last deletion.
 - Mark activities visited and track trip preparation.
 - Collect and search saved places, then add them to an itinerary.
+- Add, check, and remove packing items for each trip.
 - Keep trip notes. Export and import trips as JSON.
 
 Trips are saved in this browser with `localStorage`, under `roam.trips.v1`.
@@ -65,8 +66,7 @@ Next.js exports static files to `out/`. Geist is downloaded through
 `next/font/google` during builds. The existing Vercel deployment continues to
 use this repository. No backend migration is needed.
 
-Useful next requests for Instinct: add a daily budget, packing-list editing,
-or an activity category filter. These features are not included yet. The current
+Useful next requests for Instinct: add a daily budget or an activity category filter. These features are not included yet. The current
 app deliberately provides working data and browser checks for those changes.
 
 The decorative Lisbon artwork was generated with OpenAI imagegen. Its prompt
