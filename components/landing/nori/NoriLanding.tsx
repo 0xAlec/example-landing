@@ -45,7 +45,7 @@ export function NoriLanding() {
           <div className={styles.heroIntro}>
             <LandingHeroScene />
             <div className={styles.heroCopy}>
-              <h1 id="hero-title">Run your coding agents.<br /><span className={heading.accent}>From anywhere.</span></h1>
+              <h1 id="hero-title">A town for your coding agents.<br /><span className={heading.accent}>From anywhere.</span></h1>
               <p className={styles.heroLead}>Run <span className={styles.inlineAgent}><Image alt="" src="/logos/openai.svg" width={14} height={14} unoptimized />Codex</span>, <span className={styles.inlineAgent}><Image alt="" src="/logos/claude.svg" width={14} height={14} unoptimized />Claude Code</span>, or <span className={styles.inlineAgent}><Image alt="" className={styles.piLogo} src="/logos/pi.svg" width={14} height={14} unoptimized />Pi</span> in a managed cloud workspace configured for your repo and tools.<br />Start and steer work from the apps you already use.</p>
               <div aria-label="Start and steer from" className={styles.integrationItems} role="group">
                 <span aria-label="Slack" className={styles.integrationIcon} role="img"><Image alt="" src="/logos/slack.svg" width={20} height={20} unoptimized /></span>
