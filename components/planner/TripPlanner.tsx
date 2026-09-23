@@ -646,12 +646,14 @@ export function TripPlanner() {
                   </div>
                   <p className="budget-total">Planned <strong>{formatAmount(costs.planned)}</strong>
                     {costs.budget === undefined ? " · No budget set" : ` / ${formatAmount(costs.budget)} budget`}
+                    {costs.unpriced > 0 && " · Incomplete"}
                   </p>
                   {costs.budget !== undefined && (
                     <p className={costs.planned > costs.budget ? "budget-over" : "budget-remaining"}>
                       {costs.planned > costs.budget
                         ? `${formatAmount(costs.planned - costs.budget)} over budget`
                         : `${formatAmount(costs.budget - costs.planned)} remaining`}
+                      {costs.unpriced > 0 && " · Incomplete"}
                     </p>
                   )}
                   <p className="budget-hint">{costs.unpriced > 0 && `${costs.unpriced} ${costs.unpriced === 1 ? "activity has" : "activities have"} no planned cost. `}Use the same currency for all amounts.</p>

@@ -174,3 +174,17 @@ test("budget malformed saved fields are rejected without normalizing them", () =
     assert.throws(() => parsePlanner(JSON.stringify(planner)));
   }
 });
+
+
+test("daily costs become complete only when every activity has a cost, including zero", () => {
+  const trip = samplePlanner().trips[0];
+  const activities = activitiesForDay(trip, 0);
+  assert.equal(dailyCosts(trip, 0).unpriced, 4);
+  activities.slice(0, -1).forEach((activity) => { activity.plannedCostCents = 0; });
+  assert.equal(dailyCosts(trip, 0).unpriced, 1);
+  activities.at(-1)!.plannedCostCents = 0;
+  assert.deepEqual(dailyCosts(trip, 0), { planned: 0, unpriced: 0, budget: undefined });
+  assert.equal(dailyCosts(trip, 1).unpriced, 2);
+  delete activities[0].plannedCostCents;
+  assert.equal(dailyCosts(trip, 0).unpriced, 1);
+});

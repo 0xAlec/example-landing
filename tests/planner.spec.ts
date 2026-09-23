@@ -351,3 +351,32 @@ test("budget storage conflicts and write failures stay visible", async ({ page }
   await expect(page.getByRole("main").getByRole("alert")).toContainText("could not save these changes");
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(changed);
 });
+
+
+test("daily amounts mark incomplete costs and clear the mark when all costs exist", async ({ page }) => {
+  const summary = page.getByRole("region", { name: "Daily budget", exact: true });
+  const total = summary.locator(".budget-total");
+  const balance = summary.locator(".budget-remaining, .budget-over");
+  await expect(total).toHaveText("Planned 0.00 · No budget set · Incomplete");
+  await setBudget(page, "10");
+  await setCost(page, "Coffee & pastéis", "5");
+  await expect(total).toHaveText("Planned 5.00 / 10.00 budget · Incomplete");
+  await expect(balance).toHaveText("5.00 remaining · Incomplete");
+  await setCost(page, "Coffee & pastéis", "15");
+  await expect(balance).toHaveText("5.00 over budget · Incomplete");
+  for (const title of ["Walk through Alfama", "Lunch by the river", "Santa Luzia viewpoint"]) {
+    await setCost(page, title, "0");
+  }
+  await expect(total).toHaveText("Planned 15.00 / 10.00 budget");
+  await expect(balance).toHaveText("5.00 over budget");
+  await expect(summary).not.toContainText("no planned cost");
+  await setBudget(page, "20");
+  await expect(balance).toHaveText("5.00 remaining");
+  await page.reload();
+  await expect(summary).not.toContainText("Incomplete");
+  await setCost(page, "Santa Luzia viewpoint", "");
+  await expect(total).toHaveText("Planned 15.00 / 20.00 budget · Incomplete");
+  await expect(balance).toHaveText("5.00 remaining · Incomplete");
+  await page.reload();
+  await expect(balance).toHaveText("5.00 remaining · Incomplete");
+});
