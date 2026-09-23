@@ -330,7 +330,7 @@ test("budget malformed storage and imports never replace existing data", async (
   for (const damaged of [raw, ""]) {
     await page.evaluate(({ key, damaged }) => localStorage.setItem(key, damaged), { key, damaged });
     await page.reload();
-    await expect(page.getByRole("alert")).toContainText("existing data has not been changed");
+    await expect(page.getByRole("main").getByRole("alert")).toContainText("existing data has not been changed");
     await setBudget(page, "100");
     expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(damaged);
   }
@@ -343,11 +343,11 @@ test("budget storage conflicts and write failures stay visible", async ({ page }
   const changed = JSON.stringify(other);
   await page.evaluate(({ key, changed }) => localStorage.setItem(key, changed), { key, changed });
   await setBudget(page, "30");
-  await expect(page.getByRole("alert")).toContainText("changed in another tab");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("changed in another tab");
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(changed);
   await page.reload();
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("Quota exceeded", "QuotaExceededError"); }; });
   await setBudget(page, "40");
-  await expect(page.getByRole("alert")).toContainText("could not save these changes");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("could not save these changes");
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(changed);
 });
