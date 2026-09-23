@@ -54,11 +54,12 @@ test("legacy storage is unchanged on load and preserved when adding packing item
   expect(stored).toEqual(legacy);
 });
 
+// Scope storage alerts to the planner; Next.js also creates a route alert.
 for (const raw of ["", "{broken", JSON.stringify({ ...samplePlanner(), trips: [{ ...samplePlanner().trips[0], packingList: null }] })]) {
   test(`invalid storage stays intact: ${raw.slice(0, 20) || "empty"}`, async ({ page }) => {
     await page.addInitScript(({ raw, key }) => localStorage.setItem(key, raw), { raw, key: STORAGE_KEY });
     await page.goto("/");
-    await expect(page.getByRole("alert")).toContainText("existing data has not been changed");
+    await expect(page.getByRole("main").getByRole("alert")).toContainText("existing data has not been changed");
     await add(page, "Camera");
     await page.getByRole("checkbox", { name: "Camera", exact: true }).check();
     await page.getByRole("button", { name: "Remove packing item: Camera", exact: true }).click();
@@ -77,10 +78,10 @@ test("unreadable storage never attempts a write", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await expect(page.getByRole("alert")).toContainText("existing data has not been changed");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("existing data has not been changed");
   await add(page, "Camera");
   await expect(page.getByRole("checkbox", { name: "Camera", exact: true })).toBeVisible();
-  await expect(page.getByRole("alert")).toContainText("only last for this session");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("only last for this session");
   expect(await page.locator("html").getAttribute("data-storage-write-attempted")).toBeNull();
   expect(errors).toEqual([]);
 });
@@ -91,12 +92,12 @@ test("write failures and changes from another window stay visible", async ({ pag
   const raw = await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY);
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new Error("Quota exceeded"); }; });
   await add(page, "Camera");
-  await expect(page.getByRole("alert")).toContainText("could not save");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("could not save");
   expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBe(raw);
   await page.reload();
   await expect(page.getByText("Saved on this device")).toBeVisible();
   await page.evaluate((key) => localStorage.setItem(key, "external change"), STORAGE_KEY);
   await add(page, "Passport");
-  await expect(page.getByRole("alert")).toContainText("changed in another window");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("changed in another window");
   expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBe("external change");
 });
