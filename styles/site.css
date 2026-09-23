@@ -337,59 +337,77 @@ textarea {
   outline-offset: 2px;
 }
 main {
-  max-width: 1240px;
+  --content-gutter: 40px;
+  padding-bottom: 48px;
+}
+main > :not(.trip-heading) {
+  width: min(1160px, calc(100% - 2 * var(--content-gutter)));
   margin-inline: auto;
-  padding: 36px 40px 48px;
 }
 .trip-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+  padding: 40px var(--content-gutter) 32px;
+  background: #a3442e;
+  color: #fff7e8;
 }
 .trip-thumbnail {
   width: 88px;
   height: 88px;
   object-fit: cover;
   object-position: 75% center;
-  border-radius: 8px;
-  outline: 1px solid oklch(0 0 0 / 0.1);
-  outline-offset: -1px;
+  border-radius: 4px;
 }
 .trip-heading-text {
-  flex: 1;
+  order: -1;
+  flex: 0 0 100%;
   min-width: 0;
 }
 .location-label {
   display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 4px;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: inherit;
+  overflow-wrap: anywhere;
 }
 .trip-heading h1 {
-  margin-bottom: 8px;
-  font-size: 28px;
-  line-height: 1.2;
-  letter-spacing: -0.8px;
-  font-weight: 600;
+  margin-bottom: 24px;
+  font-size: clamp(3rem, 8vw, 8rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 .trip-meta {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: wrap;
-  gap: 10px;
-  color: var(--muted);
-  font-size: var(--text-label);
+  gap: 12px 24px;
+  font-size: 16px;
 }
 .trip-meta > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-.meta-divider {
-  width: 3px;
-  height: 3px;
-  background: #969c97;
-  border-radius: 50%;
+.trip-dates {
+  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.trip-dates svg {
+  margin-right: 8px;
+}
+.trip-heading > .button {
+  margin-left: auto;
+  color: var(--ink);
+}
+.trip-heading > .button:focus-visible {
+  outline-color: #fff7e8;
 }
 .tabs-row {
   margin: 25px 0 28px;
@@ -929,7 +947,7 @@ dialog textarea {
     padding-inline: 28px;
   }
   main {
-    padding-inline: 28px;
+    --content-gutter: 28px;
   }
   .itinerary-layout {
     grid-template-columns: minmax(0, 1fr) 185px;
@@ -976,9 +994,6 @@ dialog textarea {
   }
   .trip-heading {
     gap: 14px;
-  }
-  .trip-heading h1 {
-    font-size: 25px;
   }
   .trip-heading > .button {
     padding-inline: 8px;
@@ -1052,11 +1067,12 @@ dialog textarea {
     gap: 5px;
   }
   main {
-    padding: 26px 20px 32px;
+    --content-gutter: 20px;
+    padding-bottom: 32px;
   }
   .trip-heading {
-    flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
+    padding-block: 28px 24px;
   }
   .trip-thumbnail {
     width: 58px;
@@ -1065,13 +1081,8 @@ dialog textarea {
   .trip-heading-text {
     min-width: 0;
   }
-  .trip-heading h1 {
-    font-size: 23px;
-    letter-spacing: -0.6px;
-  }
   .trip-meta {
-    font-size: var(--text-small);
-    gap: 7px;
+    gap: 12px;
   }
   .trip-meta svg {
     display: none;
@@ -1207,7 +1218,9 @@ dialog textarea {
   }
 }
 @media (max-width: 360px) {
-  main,
+  main {
+    --content-gutter: 16px;
+  }
   .topbar,
   .sidebar {
     padding-inline: 16px;

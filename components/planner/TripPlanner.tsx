@@ -493,7 +493,7 @@ export function TripPlanner() {
               {storageIssue}
             </div>
           )}
-          <div className="trip-heading">
+          <header className="trip-heading">
             {trip.id === "lisbon" && (
               <img
                 className="trip-thumbnail"
@@ -511,11 +511,10 @@ export function TripPlanner() {
                 {trip.title}
               </h1>
               <div className="trip-meta">
-                <span>
-                  <CalendarDays size={15} />
+                <span className="trip-dates">
+                  <CalendarDays size={24} />
                   {dateRange(trip)}
                 </span>
-                <span className="meta-divider" />
                 <span>{trip.days} days</span>
               </div>
             </div>
@@ -523,7 +522,7 @@ export function TripPlanner() {
               <Pencil size={15} />
               Edit trip
             </button>
-          </div>
+          </header>
           <div className="tabs-row">
             <nav className="tabs" aria-label="Trip sections">
               {(["Itinerary", "Saved places", "Notes"] as Tab[]).map(
