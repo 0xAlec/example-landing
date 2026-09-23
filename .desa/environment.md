@@ -1,6 +1,10 @@
 ---
 version: 1
 runtime: node-22
+delivery:
+  provider: github
+  environment: Production
+  url: https://example-landing-five.vercel.app/
 environment:
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
   NEXT_PUBLIC_WAITLIST_ENDPOINT: ""
@@ -108,6 +112,16 @@ waitlist acceptance remain separate checks when relevant to a change.
 | Data services | No backend, database, or seed workflow exists | No database or saved secret environment is needed |
 
 ## Delivery workflow
+
+The configured landing page is the `delivery.url` above. It belongs to this
+repository and is hosted on Vercel. The URL is project context, not proof that
+the latest commit is deployed. Read the provider's deployment record when
+current release status matters.
+
+For a newly connected client, a relevant first task is to review this landing
+page and suggest one improvement to its headline or signup flow. Offer this
+as an example; do not start it during connection setup. Do not imply that a
+working waitlist service is connected merely because the page is available.
 
 For ordinary code changes, complete the required checks during the Run. Capture
 a screenshot when the change affects the page. Return the saved commit and
