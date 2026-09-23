@@ -11,6 +11,8 @@ identifiers so connected clients and deployment links continue to work.
 - Mark activities visited and track trip preparation.
 - Collect and search saved places, then add them to an itinerary.
 - Keep trip notes. Export and import trips as JSON.
+- Set a budget per day and compare it with activity planned costs. Use one currency for all amounts.
+  Blank costs remain unpriced; visited activities still count. Blank budgets remove the limit.
 
 Trips are saved in this browser with `localStorage`, under `roam.trips.v1`.
 There is no account, shared database, or cross-device sync. Export before clearing
@@ -65,7 +67,7 @@ Next.js exports static files to `out/`. Geist is downloaded through
 `next/font/google` during builds. The existing Vercel deployment continues to
 use this repository. No backend migration is needed.
 
-Useful next requests for Instinct: add a daily budget, packing-list editing,
+Useful next requests for Instinct: add packing-list editing
 or an activity category filter. These features are not included yet. The current
 app deliberately provides working data and browser checks for those changes.
 

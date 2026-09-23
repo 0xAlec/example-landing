@@ -4,6 +4,9 @@ import test from "node:test";
 import {
   activitiesForDay,
   dayDate,
+  dailyCosts,
+  parseAmount,
+  formatAmount,
   parsePlanner,
   samplePlanner,
   validDate,
@@ -110,4 +113,64 @@ test("demo copy updates preserve personal text, activity state, and other trips"
   assert.deepEqual(refreshSampleCopy(updated), updated);
   updated.trips[0].title = "My Lisbon visit";
   assert.equal(refreshSampleCopy(updated).trips[0].title, "My Lisbon visit");
+});
+
+
+test("budget amounts accept zero and cents and reject unsafe values", () => {
+  assert.equal(parseAmount(""), undefined);
+  assert.equal(parseAmount("0"), 0);
+  assert.equal(parseAmount("0.10"), 10);
+  assert.equal(parseAmount("12.34"), 1234);
+  assert.equal(parseAmount("999999.99"), 99999999);
+  assert.equal(formatAmount(1234), "12.34");
+  for (const invalid of ["-1", "NaN", "Infinity", "1e3", "1.001", "1000000", " "])
+    assert.throws(() => parseAmount(invalid));
+});
+test("budget totals include visited activities and follow activity moves and deletions", () => {
+  const trip = samplePlanner().trips[0];
+  const [first, second] = trip.activities;
+  first.plannedCostCents = 10;
+  second.plannedCostCents = 20;
+  second.done = true;
+  trip.dailyBudgetsCents = { 0: 30, 1: 0 };
+  assert.deepEqual(dailyCosts(trip, 0), { planned: 30, unpriced: 2, budget: 30 });
+  first.day = 1;
+  assert.equal(dailyCosts(trip, 0).planned, 20);
+  assert.equal(dailyCosts(trip, 1).planned, 10);
+  trip.activities = trip.activities.filter(a => a.id !== second.id);
+  assert.equal(dailyCosts(trip, 0).planned, 0);
+  assert.equal(dailyCosts(trip, 3).budget, undefined);
+});
+test("budget legacy records load without adding fields or mutating data", () => {
+  const legacy = samplePlanner();
+  const raw = JSON.stringify(legacy);
+  const restored = parsePlanner(raw);
+  assert.equal(JSON.stringify(restored), raw);
+  assert.deepEqual(dailyCosts(restored.trips[0], 0), { planned: 0, unpriced: 4, budget: undefined });
+});
+test("budget values round-trip independently per day and trip", () => {
+  const planner = samplePlanner();
+  planner.trips[0].dailyBudgetsCents = { 0: 0, 1: 12050 };
+  planner.trips[0].activities[0].plannedCostCents = 0;
+  planner.trips[0].activities[1].plannedCostCents = 1550;
+  const other = structuredClone(planner.trips[0]);
+  other.id = "other";
+  other.dailyBudgetsCents = { 0: 10000 };
+  planner.trips.push(other);
+  assert.deepEqual(parsePlanner(JSON.stringify(planner)), planner);
+});
+test("budget malformed saved fields are rejected without normalizing them", () => {
+  for (const value of [-1, 0.1, "20", null, 100000000]) {
+    const planner = samplePlanner();
+    (planner.trips[0] as any).dailyBudgetsCents = { 0: value };
+    assert.throws(() => parsePlanner(JSON.stringify(planner)));
+    delete planner.trips[0].dailyBudgetsCents;
+    (planner.trips[0].activities[0] as any).plannedCostCents = value;
+    assert.throws(() => parsePlanner(JSON.stringify(planner)));
+  }
+  for (const budgets of [[], null, { "-1": 0 }, { "4": 0 }, { "01": 0 }, { invalid: 0 }]) {
+    const planner = samplePlanner();
+    (planner.trips[0] as any).dailyBudgetsCents = budgets;
+    assert.throws(() => parsePlanner(JSON.stringify(planner)));
+  }
 });

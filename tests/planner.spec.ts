@@ -230,3 +230,124 @@ test("dialog supports Escape and browser validation", async ({ page }) => {
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(add).toBeFocused();
 });
+
+async function setBudget(page: import("@playwright/test").Page, value: string) {
+  await page.getByRole("button", { name: /^(Set|Edit) budget$/ }).click();
+  await page.getByLabel(/Budget for day/).fill(value);
+  await page.getByRole("button", { name: "Save budget", exact: true }).click();
+}
+async function setCost(page: import("@playwright/test").Page, title: string, value: string, day?: string) {
+  await page.getByRole("button", { name: `Edit ${title}`, exact: true }).click();
+  await page.getByLabel("Planned cost", { exact: true }).fill(value);
+  if (day !== undefined) await page.getByLabel("Day", { exact: true }).selectOption(day);
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+}
+
+test("daily budget follows costs, visits, moves, deletion, undo, and reload", async ({ page }, info) => {
+  const summary = page.getByRole("region", { name: "Daily budget", exact: true });
+  await expect(summary).toContainText("No budget set");
+  await expect(summary).toContainText("4 activities have no planned cost");
+  await setBudget(page, "50.50");
+  await setCost(page, "Coffee & pastéis", "10.25");
+  await setCost(page, "Walk through Alfama", "0");
+  await expect(summary).toContainText("40.25 remaining");
+  await page.locator(".activity-card").first().getByRole("button", { name: "Mark as visited" }).click();
+  await expect(summary).toContainText("Planned 10.25 / 50.50 budget");
+  await page.reload();
+  await expect(summary).toContainText("40.25 remaining");
+  await page.screenshot({ path: info.outputPath("daily-budget.png"), fullPage: true });
+  await setCost(page, "Coffee & pastéis", "60.75");
+  await expect(summary).toContainText("10.25 over budget");
+  await setCost(page, "Coffee & pastéis", "60.75", "1");
+  await expect(summary).toContainText("Planned 60.75 · No budget set");
+  await setBudget(page, "0");
+  await expect(summary).toContainText("60.75 over budget");
+  await page.getByRole("button", { name: "Edit Coffee & pastéis", exact: true }).click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(summary).toContainText("Planned 0.00 / 0.00 budget");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(summary).toContainText("60.75 over budget");
+  await setCost(page, "Coffee & pastéis", "");
+  await expect(summary).toContainText("3 activities have no planned cost");
+  await setBudget(page, "");
+  await page.reload();
+  await expect(summary).toContainText("No budget set");
+  await page.getByRole("button", { name: "Previous day" }).click();
+  await expect(summary).toContainText("Planned 0.00 / 50.50 budget");
+});
+
+test("budget validation and cancel preserve existing values", async ({ page }) => {
+  await setBudget(page, "20");
+  await page.getByRole("button", { name: "Edit budget", exact: true }).click();
+  const input = page.getByLabel("Budget for day 1", { exact: true });
+  for (const invalid of ["-1", "1.001", "1000000"]) {
+    await input.fill(invalid);
+    await page.getByRole("button", { name: "Save budget", exact: true }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    expect(await input.evaluate((el: HTMLInputElement) => el.validity.valid)).toBe(false);
+  }
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Daily budget", exact: true })).toContainText("20.00 budget");
+  await page.getByRole("button", { name: "Edit Coffee & pastéis", exact: true }).click();
+  await page.getByLabel("Planned cost", { exact: true }).fill("-2");
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("region", { name: "Daily budget", exact: true })).toContainText("Planned 0.00");
+});
+
+test("budget legacy load and export/import preserve data and trip independence", async ({ page }) => {
+  const legacy = await page.evaluate(key => localStorage.getItem(key)!, key);
+  await page.reload();
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(legacy);
+  await setBudget(page, "80");
+  await setCost(page, "Coffee & pastéis", "12.34");
+  const downloadEvent = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export trips" }).click();
+  const bytes = await readFile((await (await downloadEvent).path())!);
+  const exported = JSON.parse(bytes.toString());
+  expect(exported.trips[0].dailyBudgetsCents).toEqual({ 0: 8000 });
+  expect(exported.trips[0].activities[0].plannedCostCents).toBe(1234);
+  await page.getByLabel("Import trips", { exact: true }).setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: bytes });
+  await setBudget(page, "5");
+  await page.getByRole("navigation", { name: "Your trips" }).getByRole("button").first().click();
+  await expect(page.getByRole("region", { name: "Daily budget", exact: true })).toContainText("Planned 12.34 / 80.00 budget");
+  await page.reload();
+  const saved = JSON.parse(await page.evaluate(key => localStorage.getItem(key)!, key));
+  expect(saved.trips[0]).toEqual(exported.trips[0]);
+  expect(saved.trips[1].dailyBudgetsCents).toEqual({ 0: 500 });
+  expect(saved.trips[0].notes).toBe(JSON.parse(legacy).trips[0].notes);
+});
+
+test("budget malformed storage and imports never replace existing data", async ({ page }) => {
+  const original = await page.evaluate(key => localStorage.getItem(key)!, key);
+  const invalid = JSON.parse(original);
+  invalid.trips[0].dailyBudgetsCents = { 0: -1 };
+  const raw = JSON.stringify(invalid);
+  await page.getByLabel("Import trips", { exact: true }).setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from(raw) });
+  await expect(page.getByRole("status").filter({ hasText: "could not be imported" })).toBeVisible();
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(original);
+  for (const damaged of [raw, ""]) {
+    await page.evaluate(({ key, damaged }) => localStorage.setItem(key, damaged), { key, damaged });
+    await page.reload();
+    await expect(page.getByRole("alert")).toContainText("existing data has not been changed");
+    await setBudget(page, "100");
+    expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(damaged);
+  }
+});
+
+test("budget storage conflicts and write failures stay visible", async ({ page }) => {
+  const raw = await page.evaluate(key => localStorage.getItem(key)!, key);
+  const other = JSON.parse(raw);
+  other.trips[0].notes = "Changed in another tab";
+  const changed = JSON.stringify(other);
+  await page.evaluate(({ key, changed }) => localStorage.setItem(key, changed), { key, changed });
+  await setBudget(page, "30");
+  await expect(page.getByRole("alert")).toContainText("changed in another tab");
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(changed);
+  await page.reload();
+  await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("Quota exceeded", "QuotaExceededError"); }; });
+  await setBudget(page, "40");
+  await expect(page.getByRole("alert")).toContainText("could not save these changes");
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(changed);
+});

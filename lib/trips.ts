@@ -15,6 +15,7 @@ export type Activity = {
   category: Category;
   notes: string;
   done: boolean;
+  plannedCostCents?: number;
 };
 export type Place = {
   id: string;
@@ -29,6 +30,7 @@ export type Trip = {
   destination: string;
   startDate: string;
   days: number;
+  dailyBudgetsCents?: Record<string, number>;
   activities: Activity[];
   places: Place[];
   notes: string;
@@ -62,6 +64,31 @@ export function activitiesForDay(trip: Trip, day: number) {
     .filter((a) => a.day === day)
     .sort((a, b) => a.time.localeCompare(b.time) || a.id.localeCompare(b.id));
 }
+// Amounts use integer hundredths of the user's chosen currency.
+export const MAX_AMOUNT_CENTS = 99_999_999;
+export function validAmount(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) &&
+    value >= 0 && value <= MAX_AMOUNT_CENTS;
+}
+export function parseAmount(value: string): number | undefined {
+  if (value === "") return undefined;
+  if (!/^\d+(\.\d{1,2})?$/.test(value)) throw Error("Enter a nonnegative amount with up to two decimal places.");
+  const [whole, fraction = ""] = value.split(".");
+  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+  if (!validAmount(cents)) throw Error("Enter an amount no greater than 999999.99.");
+  return cents;
+}
+export function formatAmount(cents: number) {
+  return (cents / 100).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+export function dailyCosts(trip: Trip, day: number) {
+  const activities = activitiesForDay(trip, day);
+  return {
+    planned: activities.reduce((sum, a) => sum + (a.plannedCostCents ?? 0), 0),
+    unpriced: activities.filter((a) => a.plannedCostCents === undefined).length,
+    budget: trip.dailyBudgetsCents?.[day],
+  };
+}
 export function validDate(value: string) {
   return (
     /^\d{4}-\d{2}-\d{2}$/.test(value) &&
@@ -88,9 +115,10 @@ function validPlace(value: unknown): value is Place {
 }
 function validActivity(value: unknown): value is Activity {
   if (!record(value)) return false;
-  const { day, done, time } = value;
+  const { day, done, time, plannedCostCents } = value;
   return (
     validPlace(value) &&
+    (plannedCostCents === undefined || validAmount(plannedCostCents)) &&
     Number.isInteger(day) &&
     Number(day) >= 0 &&
     typeof done === "boolean" &&
@@ -134,6 +162,11 @@ function validTrip(value: unknown): value is Trip {
     )
   )
     return false;
+  if (value.dailyBudgetsCents !== undefined && (
+    !record(value.dailyBudgetsCents) ||
+    !Object.entries(value.dailyBudgetsCents).every(([day, amount]) =>
+      /^(0|[1-9]\d*)$/.test(day) && Number(day) < Number(value.days) && validAmount(amount))
+  )) return false;
   return [value.activities, value.places, value.checklist].every(
     (list) => new Set(list.map((item) => item.id)).size === list.length,
   );

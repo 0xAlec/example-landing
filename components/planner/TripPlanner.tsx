@@ -34,6 +34,9 @@ import {
 import {
   activitiesForDay,
   categories,
+  dailyCosts,
+  formatAmount,
+  parseAmount,
   dateLabel,
   dateRange,
   parsePlanner,
@@ -54,6 +57,7 @@ type Modal =
   | { kind: "activity"; id?: string; place?: Place }
   | { kind: "trip"; create?: boolean }
   | { kind: "place" }
+  | { kind: "budget" }
   | { kind: "deleteTrip" }
   | null;
 const categoryIcons = {
@@ -92,7 +96,10 @@ function Dialog({
     <dialog
       ref={ref}
       onCancel={onClose}
-      onClose={onClose}
+      onClose={(event) => {
+        // Strict Mode can reopen the dialog before its queued close event fires.
+        if (!event.currentTarget.open) onClose();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           const r = e.currentTarget.getBoundingClientRect();
@@ -150,6 +157,8 @@ function Empty({
 
 export function TripPlanner() {
   const [planner, setPlanner] = useState<Planner>(samplePlanner);
+  const savedRaw = useRef<string | null>(null);
+  const savedPlanner = useRef<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [storageIssue, setStorageIssue] = useState("");
   const [canSave, setCanSave] = useState(true);
@@ -178,7 +187,12 @@ export function TripPlanner() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPlanner(refreshSampleCopy(parsePlanner(raw)));
+      savedRaw.current = raw;
+      if (raw !== null) {
+        const restored = refreshSampleCopy(parsePlanner(raw));
+        savedPlanner.current = JSON.stringify(restored);
+        setPlanner(restored);
+      }
     } catch {
       setCanSave(false);
       setStorageIssue(
@@ -190,7 +204,16 @@ export function TripPlanner() {
   useEffect(() => {
     if (!loaded || !canSave) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(planner));
+      const serialized = JSON.stringify(planner);
+      if (serialized === savedPlanner.current) return;
+      if (localStorage.getItem(STORAGE_KEY) !== savedRaw.current) {
+        setCanSave(false);
+        setStorageIssue("Saved trips changed in another tab. Your existing data has not been changed. Export these session edits before reloading.");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, serialized);
+      savedRaw.current = serialized;
+      savedPlanner.current = serialized;
       setStorageIssue("");
     } catch {
       setStorageIssue(
@@ -203,6 +226,7 @@ export function TripPlanner() {
     planner.trips[0];
   const day = planner.selectedDay;
   const activities = activitiesForDay(trip, day);
+  const costs = dailyCosts(trip, day);
   const complete = trip.activities.filter((a) => a.done).length;
   function updateTrip(change: (trip: Trip) => Trip) {
     setPlanner((p) => ({
@@ -232,6 +256,9 @@ export function TripPlanner() {
       setFormError("Give this activity a name.");
       return;
     }
+    let plannedCostCents: number | undefined;
+    try { plannedCostCents = parseAmount(String(data.get("plannedCost") ?? "")); }
+    catch (error) { setFormError((error as Error).message); return; }
     const existing =
       modal?.kind === "activity"
         ? trip.activities.find((a) => a.id === modal.id)
@@ -245,6 +272,7 @@ export function TripPlanner() {
       category: String(data.get("category")) as Category,
       notes: String(data.get("notes") ?? "").trim(),
       done: existing?.done ?? false,
+      plannedCostCents,
     };
     updateTrip((t) => ({
       ...t,
@@ -257,6 +285,19 @@ export function TripPlanner() {
     close();
     setNotice(existing ? "Activity updated." : "Activity added.");
     setUndo(null);
+  }
+  function saveBudget(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      const amount = parseAmount(String(new FormData(event.currentTarget).get("budget") ?? ""));
+      updateTrip((t) => {
+        const budgets = { ...t.dailyBudgetsCents };
+        if (amount === undefined) delete budgets[day];
+        else budgets[day] = amount;
+        return { ...t, dailyBudgetsCents: budgets };
+      });
+      close();
+    } catch (error) { setFormError((error as Error).message); }
   }
   function saveTrip(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -596,6 +637,25 @@ export function TripPlanner() {
                     Add activity
                   </button>
                 </div>
+                <section className="daily-budget" aria-label="Daily budget">
+                  <div className="budget-heading">
+                    <h3>Day {day + 1} budget</h3>
+                    <button className="text-button" onClick={() => open({ kind: "budget" })}>
+                      <Pencil size={14} />{costs.budget === undefined ? "Set budget" : "Edit budget"}
+                    </button>
+                  </div>
+                  <p className="budget-total">Planned <strong>{formatAmount(costs.planned)}</strong>
+                    {costs.budget === undefined ? " · No budget set" : ` / ${formatAmount(costs.budget)} budget`}
+                  </p>
+                  {costs.budget !== undefined && (
+                    <p className={costs.planned > costs.budget ? "budget-over" : "budget-remaining"}>
+                      {costs.planned > costs.budget
+                        ? `${formatAmount(costs.planned - costs.budget)} over budget`
+                        : `${formatAmount(costs.budget - costs.planned)} remaining`}
+                    </p>
+                  )}
+                  <p className="budget-hint">{costs.unpriced > 0 && `${costs.unpriced} ${costs.unpriced === 1 ? "activity has" : "activities have"} no planned cost. `}Use the same currency for all amounts.</p>
+                </section>
                 {!activities.length ? (
                   <Empty
                     title="No activities yet"
@@ -635,6 +695,7 @@ export function TripPlanner() {
                               </a>
                             )}
                             {activity.notes && <p>{activity.notes}</p>}
+                            {activity.plannedCostCents !== undefined && <p>Planned cost: {formatAmount(activity.plannedCostCents)}</p>}
                             <div className="activity-footer">
                               <button
                                 className={`check-button ${activity.done ? "checked" : ""}`}
@@ -880,7 +941,9 @@ export function TripPlanner() {
       {modal && (
         <Dialog
           title={
-            modal.kind === "activity"
+            modal.kind === "budget"
+              ? "Daily budget"
+              : modal.kind === "activity"
               ? editing
                 ? "Edit activity"
                 : "Add activity"
@@ -894,6 +957,20 @@ export function TripPlanner() {
           }
           onClose={close}
         >
+          {modal.kind === "budget" && (
+            <form onSubmit={saveBudget}>
+              <label>Budget for day {day + 1}
+                <input name="budget" type="number" min="0" max="999999.99" step="0.01"
+                  defaultValue={costs.budget === undefined ? "" : (costs.budget / 100).toFixed(2)} />
+              </label>
+              <p className="form-hint">Leave blank to remove the budget. Use the same currency as your planned costs.</p>
+              {formError && <p role="alert" className="form-error">{formError}</p>}
+              <div className="dialog-footer">
+                <button type="button" className="button" onClick={close}>Cancel</button>
+                <button type="submit" className="primary">Save budget</button>
+              </div>
+            </form>
+          )}
           {modal.kind === "activity" && (
             <form onSubmit={saveActivity}>
               <label>
@@ -956,6 +1033,12 @@ export function TripPlanner() {
                   />
                 </label>
               </div>
+              <label>
+                Planned cost
+                <input name="plannedCost" type="number" min="0" max="999999.99" step="0.01"
+                  defaultValue={editing?.plannedCostCents === undefined ? "" : (editing.plannedCostCents / 100).toFixed(2)}
+                  placeholder="Not set" />
+              </label>
               <label>
                 Notes
                 <textarea
