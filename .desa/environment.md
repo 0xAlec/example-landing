@@ -7,31 +7,31 @@ delivery:
   url: https://example-landing-five.vercel.app/
 environment:
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-  NEXT_PUBLIC_WAITLIST_ENDPOINT: ""
 services: []
 setup:
   - id: install
     run: npm ci --engine-strict
+    timeoutSeconds: 600
+  - id: browser
+    run: npx playwright install chromium
     timeoutSeconds: 600
 checks:
   - id: typecheck
     run: npm run typecheck
     timeoutSeconds: 300
     required: true
+  - id: unit
+    run: npm test
+    timeoutSeconds: 120
+    required: true
   - id: build
     run: npm run build && test -s out/index.html
     timeoutSeconds: 600
     required: true
-  - id: development-page
-    run: >-
-      node --input-type=module -e 'import assert from "node:assert/strict"; const response = await fetch(process.env.BASE_URL); assert.equal(response.status, 200); const html = await response.text(); assert.match(html, /id="hero-title"/); assert.match(html, /Run your coding agents/); assert.match(html, /id="main-content"/);'
-    timeoutSeconds: 180
+  - id: browser
+    run: npm run test:e2e
+    timeoutSeconds: 300
     required: true
-    managed:
-      app:
-        run: npm run dev -- --port "$PORT"
-        readyPath: /
-        readyTimeoutSeconds: 120
 preview:
   app:
     run: npm run dev -- --port "$PORT"
@@ -41,106 +41,91 @@ preview:
 
 # Project environment
 
-This repository contains the standalone Desa landing page. Run all commands from
-the repository root. It uses Next.js with a static export to `out/`.
+Roam is a personal trip planner in the existing `0xAlec/example-landing`
+repository. Run commands at the repository root. Next.js exports a static app
+into `out/`; browser local storage owns the user's trip data.
 
 ## Tools and versions
 
-`package.json` requires Node.js 22.12.0 or later. The cloud profile uses Node.js 22.
-`npm ci --engine-strict` enforces the manifest engine constraints. Use npm with
-`package-lock.json`; do not substitute another package manager. The manifest pins
-Next.js 16.2.11, React 19.2.4, and TypeScript 5.9.3.
-
-Installation needs the npm registry. The page imports Geist and Nunito through
-`next/font/google`, so development startup and builds need Google Fonts access.
-No repository requirement for a database, native desktop app, or browser test
-runner is present.
+`package.json` and `package-lock.json` define Node >=22.12, npm, Next.js, React,
+TypeScript, and Playwright. Use Node 22 in cloud work. The install command
+enforces engine constraints. Installation needs the npm registry; browser setup
+needs Playwright's Chromium download host. Builds need Google Fonts for Geist
+and Lora. The Desa Node 22 image includes Chromium's Linux system libraries.
+Do not substitute unverified browser executables or silently skip browser tests.
 
 ## Development workflow
 
-Run `npm ci --engine-strict`, then `npm run dev`. The default local URL is
-`http://localhost:3000`. For local environment files, copy `.env.example` to
-`.env.local`. Desa supplies the same public defaults from this file.
+Use `npm ci --engine-strict`, `npx playwright install chromium`, and
+`npm run dev`. The default development URL is `http://localhost:3000`.
+Managed previews pass the assigned port and wait for `/`.
 
-The managed check and preview pass their assigned port to the existing dev
-script. Readiness uses `/`. The managed check fetches the page and checks the
-landing heading and main content marker. Its app stops after the check. A setup
-command must not start a background app for later commands.
-
-Run `npm run typecheck` and `npm run build` before submitting changes. Build
-output is in `out/`; generated Next.js files are in `.next/`. These directories
-are disposable and ignored by Git. There are no synthetic users or seed data.
-Keep command logs and current verification results in the task evidence, outside
-this file.
+Run type checking, unit tests, the production build, then the browser suite.
+The browser suite starts its own static server on port 3322 and stops it on
+completion. It uses isolated browser contexts; it does not require an existing
+server or saved browser profile. `PLAYWRIGHT_BASE_URL` selects an existing
+preview for explicit deployment verification. Do not set it for ordinary local
+checks. Logs, screenshots, and failure traces are in `test-results/` and
+`playwright-report/`, outside the recipe. Build output and test output are
+ignored and disposable. Never clear a person's browser storage as test cleanup.
 
 ## Services and data
 
-No credentials or external data services are required for install, type checking,
-static export, or page checks. The repository has no waitlist backend or database.
-An empty `NEXT_PUBLIC_WAITLIST_ENDPOINT` uses `/api/waitlist`, which this static
-application does not serve. A live submission therefore requires a separately
-configured compatible service. This setup does not submit waitlist requests.
+No saved secrets, database, backend, account, or waitlist service is used.
+The sample itinerary is fictional planning data. Map links are Google Maps
+searches, not a live map integration or verified travel route. The app has no
+booking, payment, or real message submission workflow.
 
-Before a website release, set `NEXT_PUBLIC_SITE_URL` to the approved public URL
-and `NEXT_PUBLIC_WAITLIST_ENDPOINT` to the approved waitlist service. The endpoint
-must accept the contract in `README.md` and `lib/waitlist.ts` and permit the site's
-origin. These public values are bundled into the client. Do not put credentials
-in them. Service provisioning, real submissions, and deployment require separate
-authorization. There are no migrations, shared test records, or cleanup operations.
+The storage key is `roam.trips.v1`. Tests use isolated contexts and synthetic
+trips. Trip export/import supports a person's own backups. Storage failures
+must remain visible and corrupt saved data must not be overwritten silently.
+`NEXT_PUBLIC_SITE_URL` affects metadata only; no private data belongs in it.
 
 ## Verification coverage
 
-| Workflow | Repository evidence | Command ID | Requirement and assertions | Limits |
-| --- | --- | --- | --- | --- |
-| Install | `package.json`, `package-lock.json`, `README.md` | `install` | Required; locked install with engine enforcement | Needs npm network access |
-| Types | `package.json`, `tsconfig.json` | `typecheck` | Required; Next.js route type generation and TypeScript validation | Does not execute browser interactions |
-| Static export | `package.json`, `next.config.ts`, `README.md` | `build` | Required; production build and nonempty `out/index.html` | Needs Google Fonts; no deployment |
-| Development server | `package.json`, `app/page.tsx`, `components/landing/nori/NoriLanding.tsx` | `development-page` | Required; HTTP 200, hero heading, and main content marker | HTML check; not visual, hydration, or interaction proof |
+| Workflow | Evidence | Command | Required assertions and limits |
+| --- | --- | --- | --- |
+| Install | Manifest and lockfile | `install` | Engine enforcement and locked dependencies |
+| Browser setup | Playwright dependency | `browser` setup | Install matching Chromium; needs network |
+| Types | `tsconfig.json` | `typecheck` | Route generation and TypeScript validation |
+| Trip data | `lib/trips.test.ts` | `unit` | Date boundaries, saved records, invalid data, sorted daily views |
+| Static app | `next.config.ts` | `build` | Production export and nonempty HTML |
+| Browser behavior | `tests/planner.spec.ts` | `browser` check | Desktop/mobile, editing, persistence, trip isolation, places, backups, dialogs; isolated browser data only |
 
-No CI workflows, test scripts, or lint scripts are present in the repository.
-Do not invent commands for them. Browser behavior, visual review, and live
-waitlist acceptance remain separate checks when relevant to a change.
+No external booking service or shared-data workflow is present. No CI workflow
+is configured in this repository. Passing browser checks does not prove live
+travel details, cross-device sync, or provider deployment status.
 
 ## Local and cloud differences
 
-| Requirement | Local evidence | Cloud behavior and limits |
+| Requirement | Local evidence | Cloud behavior |
 | --- | --- | --- |
-| Node and npm | Manifest requires Node >=22.12.0; observed local shell uses Node 25.3.0 and npm 11.7.0 | Use Node.js 22 profile and the locked npm install; the local version is not a new requirement |
-| Application startup | `README.md` documents port 3000; the dev script binds to 127.0.0.1 | Managed startup supplies a port and waits for `/` |
-| Public configuration | `.env.example` supplies localhost and no waitlist endpoint | Use equivalent public defaults; configure real delivery values separately |
-| Application checks | Type and build scripts are present; no repository browser suite exists | Run the same scripts and an HTTP content check; these do not prove visual or live service behavior |
-| Data services | No backend, database, or seed workflow exists | No database or saved secret environment is needed |
+| Node | Local shell uses Node 25; manifest permits Node >=22.12 | Node 22 profile; same scripts and lockfile |
+| Browser | Playwright-managed Chromium on macOS | Matching Chromium download and Linux libraries in the runtime |
+| Saved data | Local storage on the person's device | Isolated test browser storage; no copy of personal data |
+| Fonts and assets | Geist, Lora, and local Lisbon artwork | Same build downloads and repository asset |
+| Application server | Loopback development server or static preview | Managed preview; tests start and clean up their own loopback server |
+
+Keep current cloud verification results in Desa records, not this file.
 
 ## Delivery workflow
 
-The configured landing page is the `delivery.url` above. It belongs to this
-repository and is hosted on Vercel. The URL is project context, not proof that
-the latest commit is deployed. Read the provider's deployment record when
-current release status matters.
+The existing Vercel project still uses the `example-landing` identifier and
+serves the trip planner at `delivery.url`. Do not rename the GitHub repository
+or hosting project as a side effect of application changes.
 
-For a newly connected client, a relevant first task is to review this landing
-page and suggest one improvement to its headline or signup flow. Offer this
-as an example; do not start it during connection setup. Do not imply that a
-working waitlist service is connected merely because the page is available.
-
-For ordinary code changes, complete the required checks during the Run. Capture
-a screenshot when the change affects the page. Return the saved commit and
-report failed or missing checks. Desa publishes an ordinary completed code task
-to its task branch and PR unless the task disables publication. Setup tasks
-retain their explicit publication step.
-
-After PR publication, the connected client must check the Vercel deployment for
-the exact task commit. Return a preview URL only after that deployment is ready
-and the requested page change is verified. Use the GitHub deployment record or
-authorized Vercel tools. Report missing access or failed preview checks. A ready
-deployment alone does not prove page behavior. If the PR does not yet exist,
-record these client checks as pending.
-
-These instructions do not grant deployment, merge, service access, or waitlist
-submission permission. They do not start an automatic task after completion.
+For a connected client's first task, suggest adding a daily budget, editable
+packing list, or category filter. Do not start sample work during connection
+setup. Run required checks and capture a screenshot for visible changes.
+Ordinary code tasks use Desa's configured PR publication. Setup tasks keep
+explicit publication. After publication, check the deployment for the exact
+commit and inspect the requested behavior before returning a preview URL.
+Record missing access or failed checks. A provider's ready status alone does
+not prove page behavior. This file grants no merge or deployment permission.
 
 ## Related instructions
 
-Read `README.md`, `package.json`, `next.config.ts`, `.env.example`, and
-`lib/waitlist.ts`. No repository `AGENTS.md` or required Library item is present.
-For Next.js code changes, use the documentation for the installed version.
+Read `README.md`, `package.json`, `lib/trips.ts`, and the relevant Next.js docs
+in `node_modules/next/dist/docs/`. No repository AGENTS.md or required Library
+item is present. Current verification results and task IDs belong in the setup
+report so they do not change accepted recipe bytes.

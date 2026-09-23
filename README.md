@@ -1,34 +1,75 @@
-# Example landing
+# Roam trip planner
 
-A standalone copy of the Desa landing page from `0xAlec/desa`, commit `15f9f2b0b2e17cd19316e8a1109e339fe01a0247`.
-Copied on 22 September 2026. The page keeps its original text, artwork, animations, and town video.
+A small, working travel planner built with Next.js, React, and TypeScript.
+The existing GitHub repository and Vercel project keep their `example-landing`
+identifiers so connected clients and deployment links continue to work.
 
-## Run locally
+## What you can do
 
-Use Node.js 22.12 or later.
+- Start with a four-day Lisbon sample, or create a trip of 1–14 days.
+- Add, edit, move between days, and delete activities. Undo the last deletion.
+- Mark activities visited and track trip preparation.
+- Collect and search saved places, then add them to an itinerary.
+- Keep trip notes. Export and import trips as JSON.
+
+Trips are saved in this browser with `localStorage`, under `roam.trips.v1`.
+There is no account, shared database, or cross-device sync. Export before clearing
+browser data. An unreadable saved record is kept intact and editing becomes
+session-only. A save failure is shown in the interface. Imported trips are added
+without replacing existing trips.
+
+The Lisbon itinerary is sample content, not a booking or live travel advisory.
+Map links open Google Maps searches; no map key is required. Confirm schedules,
+opening hours, availability, and other trip details yourself.
+
+## Develop
+
+Use Node 22.12+ and npm. Run commands from the repository root.
 
 ```sh
-npm ci
-cp .env.example .env.local
+npm ci --engine-strict
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open `http://localhost:3000`. The development server binds to loopback.
+The only optional public configuration is `NEXT_PUBLIC_SITE_URL` for metadata.
+Vercel supplies the production URL if it is not set. No credentials are needed.
 
-## Check and build
+## Verify
 
 ```sh
 npm run typecheck
+npm test
 npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
 
-The build creates static files in `out/`. The build downloads the Geist and Nunito fonts from Google.
+The browser suite serves the production `out/` directory on port 3322 and stops
+its server afterwards. Build first. It tests desktop and mobile rendering,
+activity changes, persistence, independent trips, saved places, import/export,
+invalid storage protection, and dialog keyboard behavior. It sends no messages,
+uses no real travel service, and does not change a shared backend. Browser data
+is isolated per test. Screenshots, traces on failure, and results are under
+`test-results/` and `playwright-report/` (ignored).
 
-## Configuration
+Use `npm run preview` to serve the built app locally. `PORT` can change the
+preview port. `PLAYWRIGHT_BASE_URL` selects an existing deployment for browser
+checks without starting a local server. These checks only change the test
+browser's local storage. Linux may require Playwright's documented system
+libraries; the Desa Node 22 image already contains Chromium dependencies.
 
-Set `NEXT_PUBLIC_SITE_URL` to the site's URL before a production build.
-Set `NEXT_PUBLIC_WAITLIST_ENDPOINT` to a compatible waitlist service. The form sends JSON with `email`, `company`, and `agents`. The service must return a successful HTTP status to accept a request. An external service must permit requests from the site's origin.
+## Deployment and future demo tasks
 
-The default form endpoint is `/api/waitlist`. This static copy does not include the original Worker or a waitlist database. Form submissions require a configured service. No credentials or environment files were copied.
+Next.js exports static files to `out/`. Geist and Lora are downloaded through
+`next/font/google` during builds. The existing Vercel deployment continues to
+use this repository. No backend migration is needed.
 
-The source components and styles are copied without visual changes. Shared public asset imports and the shared loading stylesheet now use local paths. The desktop app, signed-in routes, backend, and release scripts are outside this repository.
+Useful next requests for Instinct: add a daily budget, packing-list editing,
+or an activity category filter. These features are not included yet. The current
+app deliberately provides working data and browser checks for those changes.
+
+The decorative Lisbon artwork was generated with OpenAI imagegen. Its prompt
+and provenance are in `public/images/README.md`. This project replaces the
+previous copied Desa marketing page; its old waitlist and marketing assets
+have been removed.
