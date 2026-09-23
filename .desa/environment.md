@@ -12,7 +12,7 @@ setup:
   - id: install
     run: npm ci --engine-strict
     timeoutSeconds: 600
-  - id: browser
+  - id: install-browser
     run: npx playwright install chromium
     timeoutSeconds: 600
 checks:
@@ -86,7 +86,7 @@ must remain visible and corrupt saved data must not be overwritten silently.
 | Workflow | Evidence | Command | Required assertions and limits |
 | --- | --- | --- | --- |
 | Install | Manifest and lockfile | `install` | Engine enforcement and locked dependencies |
-| Browser setup | Playwright dependency | `browser` setup | Install matching Chromium; needs network |
+| Browser setup | Playwright dependency | `install-browser` | Install matching Chromium; needs network |
 | Types | `tsconfig.json` | `typecheck` | Route generation and TypeScript validation |
 | Trip data | `lib/trips.test.ts` | `unit` | Date boundaries, saved records, invalid data, sorted daily views |
 | Static app | `next.config.ts` | `build` | Production export and nonempty HTML |
