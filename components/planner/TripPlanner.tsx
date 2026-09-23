@@ -26,8 +26,6 @@ import {
   Plus,
   Route,
   Search,
-  Sparkles,
-  Sun,
   TrainFront,
   Trash2,
   X,
@@ -62,12 +60,6 @@ const categoryIcons = {
   Stay: BedDouble,
   Transport: TrainFront,
 };
-const dayThemes = [
-  "A first taste of the city",
-  "Take the scenic route",
-  "A little further afield",
-  "One more good memory",
-];
 function CategoryIcon({
   category,
   size = 19,
@@ -115,7 +107,6 @@ function Dialog({
     >
       <div className="dialog-heading">
         <div>
-          <span className="eyebrow">MAKE IT YOURS</span>
           <h2 id="dialog-title">{title}</h2>
         </div>
         <button
@@ -169,6 +160,11 @@ export function TripPlanner() {
     activity: Activity;
   } | null>(null);
   const [formError, setFormError] = useState("");
+  useEffect(() => {
+    if (!notice || undo) return;
+    const timeout = setTimeout(() => setNotice(""), 4000);
+    return () => clearTimeout(timeout);
+  }, [notice, undo]);
   const opener = useRef<HTMLElement | null>(null);
   function close() {
     setModal(null);
@@ -257,9 +253,7 @@ export function TripPlanner() {
     switchDay(activity.day);
     setTab("Itinerary");
     close();
-    setNotice(
-      existing ? "Activity updated." : "A little more adventure, added.",
-    );
+    setNotice(existing ? "Activity updated." : "Activity added.");
     setUndo(null);
   }
   function saveTrip(event: FormEvent<HTMLFormElement>) {
@@ -298,7 +292,7 @@ export function TripPlanner() {
       setQuery("");
     } else updateTrip((t) => ({ ...t, title, destination, startDate }));
     close();
-    setNotice("Your next adventure is taking shape.");
+    setNotice("Trip saved.");
     setUndo(null);
   }
   function savePlace(event: FormEvent<HTMLFormElement>) {
@@ -359,7 +353,7 @@ export function TripPlanner() {
     a.download = "roam-trips.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setNotice("Your trips have been exported.");
+    setNotice("Trips exported.");
   }
   async function importTrips(file?: File) {
     if (!file) return;
@@ -379,7 +373,7 @@ export function TripPlanner() {
         };
       });
       setTab("Itinerary");
-      setNotice("Your imported trips are ready. Existing trips were kept.");
+      setNotice("Trips imported. Existing trips were kept.");
     } catch {
       setNotice("This file could not be imported. Choose a Roam JSON export.");
     }
@@ -410,16 +404,8 @@ export function TripPlanner() {
           </span>
           roam<span className="brand-period">.</span>
         </a>
-        <div className="sidebar-tagline">A little space to go places.</div>
         <div className="sidebar-section">
-          <span className="eyebrow">YOUR TRIPS</span>
-          <button
-            className="icon-button"
-            aria-label="Create a trip"
-            onClick={() => open({ kind: "trip", create: true })}
-          >
-            <Plus size={18} />
-          </button>
+          <span className="eyebrow">Trips</span>
         </div>
         <nav className="trip-list" aria-label="Your trips">
           {planner.trips.map((t) => (
@@ -447,22 +433,14 @@ export function TripPlanner() {
           onClick={() => open({ kind: "trip", create: true })}
         >
           <Plus size={17} />
-          Plan a new trip
+          New trip
         </button>
         <div className="sidebar-bottom">
-          <div className="travel-thought">
-            <Sun size={26} strokeWidth={1.2} />
-            <p>
-              The best part?
-              <br />
-              <em>It’s still ahead of you.</em>
-            </p>
-          </div>
-          <div className="storage-note">
-            <span className="status-dot" />
-            Your personal travel notebook
-            <small>Saved on this device. No account needed.</small>
-          </div>
+          <p className="storage-note">
+            Trips are saved in this browser.
+            <br />
+            Export a backup to keep a copy.
+          </p>
         </div>
       </aside>
       <div className="workspace">
@@ -514,7 +492,15 @@ export function TripPlanner() {
             </div>
           )}
           <div className="trip-heading">
-            <div>
+            {trip.id === "lisbon" && (
+              <img
+                className="trip-thumbnail"
+                src="/images/lisbon.webp"
+                alt="Illustration of Lisbon rooftops and the Tagus river"
+                fetchPriority="high"
+              />
+            )}
+            <div className="trip-heading-text">
               <div className="eyebrow location-label">
                 <MapPin size={13} />
                 {trip.destination}
@@ -528,42 +514,13 @@ export function TripPlanner() {
                   {dateRange(trip)}
                 </span>
                 <span className="meta-divider" />
-                <span>{trip.days} days of possibility</span>
+                <span>{trip.days} days</span>
               </div>
             </div>
             <button className="button" onClick={() => open({ kind: "trip" })}>
               <Pencil size={15} />
               Edit trip
             </button>
-          </div>
-          <div
-            className={`trip-banner ${trip.id === "lisbon" ? "lisbon-banner" : "new-banner"}`}
-          >
-            {trip.id === "lisbon" ? (
-              <img
-                src="/images/lisbon.webp"
-                alt="Gouache illustration of Lisbon rooftops and the Tagus river"
-                fetchPriority="high"
-              />
-            ) : (
-              <div className="abstract-landscape" aria-hidden="true">
-                <div />
-                <div />
-                <div />
-              </div>
-            )}
-            <div className="banner-label">
-              <span className="tiny-label">THE NEXT CHAPTER</span>
-              <span>
-                {trip.id === "lisbon"
-                  ? "Less rushing. More wandering."
-                  : "Somewhere new. Something wonderful."}
-              </span>
-            </div>
-            <span className="trip-stamp">
-              <Compass size={15} />
-              {trip.days} DAY GETAWAY
-            </span>
           </div>
           <div className="tabs-row">
             <nav className="tabs" aria-label="Trip sections">
@@ -589,9 +546,6 @@ export function TripPlanner() {
                 },
               )}
             </nav>
-            <span className="trip-count">
-              {trip.activities.length} plans, plenty of room to wander
-            </span>
           </div>
           {tab === "Itinerary" && (
             <div className="itinerary-layout">
@@ -619,22 +573,17 @@ export function TripPlanner() {
                 </div>
                 <div className="day-heading">
                   <div>
-                    <span className="eyebrow">
+                    <h2>
                       {dateLabel(trip.startDate, day, {
                         weekday: "long",
                         month: "long",
                         day: "numeric",
                       })}
-                    </span>
-                    <h2>
-                      {trip.id === "lisbon"
-                        ? dayThemes[day]
-                        : `Your day in ${trip.destination.split(",")[0]}`}
                     </h2>
                     <p>
                       {activities.length
-                        ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} · Make a plan. Leave a little room.`
-                        : "A blank page for a good day."}
+                        ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"}`
+                        : "No activities planned"}
                     </p>
                   </div>
                   <button
@@ -647,32 +596,28 @@ export function TripPlanner() {
                 </div>
                 {!activities.length ? (
                   <Empty
-                    title="See where the day takes you"
-                    body="Add your first stop, a meal worth lingering over, or a place to stay."
+                    title="No activities yet"
+                    body="Add a place, meal, or travel time to this day."
                     action="Add your first activity"
                     onAction={() => open({ kind: "activity" })}
                   />
                 ) : (
                   <ol className="timeline">
-                    {activities.map((activity, i) => (
+                    {activities.map((activity) => (
                       <li
                         key={activity.id}
                         className={activity.done ? "completed" : ""}
                       >
                         <div className="time-column">
                           <time>{activity.time}</time>
-                          <span className="timeline-dot" />
                         </div>
                         <article className="activity-card">
-                          <div
-                            className={`activity-category cat-${categories.indexOf(activity.category)}`}
-                          >
+                          <div className="activity-category">
                             <CategoryIcon category={activity.category} />
                           </div>
                           <div className="activity-body">
                             <div className="activity-label">
                               {activity.category}
-                              <span>STOP {String(i + 1).padStart(2, "0")}</span>
                             </div>
                             <h3>{activity.title}</h3>
                             {activity.location && (
@@ -706,9 +651,7 @@ export function TripPlanner() {
                                 <span>
                                   {activity.done && <Check size={11} />}
                                 </span>
-                                {activity.done
-                                  ? "Been there, loved that"
-                                  : "Mark as visited"}
+                                {activity.done ? "Visited" : "Mark as visited"}
                               </button>
                               <button
                                 className="icon-button"
@@ -725,14 +668,6 @@ export function TripPlanner() {
                       </li>
                     ))}
                   </ol>
-                )}
-                {!!activities.length && (
-                  <button
-                    className="add-stop"
-                    onClick={() => open({ kind: "activity" })}
-                  >
-                    <Plus size={17} />A little more adventure?
-                  </button>
                 )}
                 <div className="day-navigation">
                   <button
@@ -758,25 +693,10 @@ export function TripPlanner() {
               </section>
               <aside className="trip-aside">
                 <div className="summary-card">
-                  <div className="card-title">
-                    <span className="eyebrow">THE BIG PICTURE</span>
-                    <Compass size={18} />
-                  </div>
-                  <h3>A trip to look forward to.</h3>
-                  <div className="summary-stats">
-                    <div>
-                      <strong>{trip.days}</strong>
-                      <span>days away</span>
-                    </div>
-                    <div>
-                      <strong>{trip.activities.length}</strong>
-                      <span>little plans</span>
-                    </div>
-                    <div>
-                      <strong>{complete}</strong>
-                      <span>memories made</span>
-                    </div>
-                  </div>
+                  <h3>Trip overview</h3>
+                  <p className="summary-count">
+                    {complete} of {trip.activities.length} activities visited
+                  </p>
                   <div
                     className="progress-track"
                     role="progressbar"
@@ -791,16 +711,9 @@ export function TripPlanner() {
                       }}
                     />
                   </div>
-                  <small>
-                    {complete === 0
-                      ? "Your adventure is just getting started."
-                      : `${complete} of ${trip.activities.length} activities visited.`}
-                  </small>
                 </div>
                 <div className="packing-card">
-                  <h3>
-                    Before you go <span>✧</span>
-                  </h3>
+                  <h3>Checklist</h3>
                   {trip.checklist.map((item) => (
                     <label className="checklist-row" key={item.id}>
                       <input
@@ -819,33 +732,8 @@ export function TripPlanner() {
                     </label>
                   ))}
                 </div>
-                {!!trip.places.length && (
-                  <div className="idea-card">
-                    <div className="idea-top">
-                      <Sparkles size={18} />
-                      <span>ROOM FOR ONE MORE?</span>
-                    </div>
-                    <h3>{trip.places[0].title}</h3>
-                    <p>
-                      <MapPin size={13} />
-                      {trip.places[0].location || trip.destination}
-                    </p>
-                    <button
-                      className="text-button"
-                      onClick={() => {
-                        setTab("Saved places");
-                        setQuery("");
-                      }}
-                    >
-                      Explore your saved places
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                )}
                 <p className="sample-note">
-                  {trip.id === "lisbon"
-                    ? "A sample itinerary, ready to make your own. "
-                    : ""}
+                  {trip.id === "lisbon" ? "Sample trip. " : ""}
                   Check opening hours and travel details before you go.
                 </p>
               </aside>
@@ -855,11 +743,8 @@ export function TripPlanner() {
             <section className="places-section">
               <div className="section-heading">
                 <div>
-                  <span className="eyebrow">
-                    FOR THE MAYBE, THE MUST, AND THE WHY NOT
-                  </span>
-                  <h2>Good places find their way here.</h2>
-                  <p>A few ideas to keep in your back pocket.</p>
+                  <h2>Saved places</h2>
+                  <p>Add a saved place to any day of your trip.</p>
                 </div>
                 <button
                   className="primary"
@@ -882,22 +767,17 @@ export function TripPlanner() {
                 <div className="places-grid">
                   {filteredPlaces.map((place) => (
                     <article className="saved-place" key={place.id}>
-                      <div
-                        className={`place-illustration cat-${categories.indexOf(place.category)}`}
-                      >
-                        <CategoryIcon category={place.category} size={38} />
-                        <span>{place.category}</span>
-                      </div>
                       <div className="saved-place-body">
+                        <span className="place-category">
+                          <CategoryIcon category={place.category} size={16} />
+                          {place.category}
+                        </span>
                         <h3>{place.title}</h3>
                         <p className="place-location">
                           <MapPin size={14} />
                           {place.location || trip.destination}
                         </p>
-                        <p>
-                          {place.notes ||
-                            "A little possibility for your next free moment."}
-                        </p>
+                        {place.notes && <p>{place.notes}</p>}
                         <div className="place-actions">
                           <button
                             className="text-button"
@@ -928,13 +808,11 @@ export function TripPlanner() {
                 </div>
               ) : (
                 <Empty
-                  title={
-                    query ? "No places found" : "Keep a little inspiration"
-                  }
+                  title={query ? "No places found" : "No saved places"}
                   body={
                     query
                       ? "Try a different name or neighborhood."
-                      : "Save a place here, then add it to a day when the time feels right."
+                      : "Save places you want to add to your trip."
                   }
                   action={query ? "Clear search" : "Save your first place"}
                   onAction={() =>
@@ -948,11 +826,9 @@ export function TripPlanner() {
             <section className="notes-section">
               <div className="section-heading">
                 <div>
-                  <span className="eyebrow">ALL THE LITTLE DETAILS</span>
-                  <h2>A page for everything else.</h2>
-                  <p>Ideas, packing lists, and reminders. All together.</p>
+                  <h2>Trip notes</h2>
+                  <p>Booking details, addresses, and reminders.</p>
                 </div>
-                <NotebookPen size={29} strokeWidth={1.3} />
               </div>
               <label htmlFor="trip-notes" className="sr-only">
                 Trip notes
@@ -960,7 +836,7 @@ export function TripPlanner() {
               <textarea
                 id="trip-notes"
                 className="notebook"
-                placeholder="Something you don’t want to forget…"
+                placeholder="Add a note…"
                 value={trip.notes}
                 maxLength={10000}
                 onChange={(e) =>
@@ -980,10 +856,6 @@ export function TripPlanner() {
               </div>
             </section>
           )}
-          <footer className="page-footer">
-            <span>Made for the journey, not just the destination.</span>
-            <span>roam.</span>
-          </footer>
         </main>
       </div>
       {notice && (
@@ -1008,15 +880,15 @@ export function TripPlanner() {
           title={
             modal.kind === "activity"
               ? editing
-                ? "A little change of plans"
-                : "Add a little adventure"
+                ? "Edit activity"
+                : "Add activity"
               : modal.kind === "place"
-                ? "Save somewhere good"
+                ? "Save a place"
                 : modal.kind === "deleteTrip"
                   ? "Delete this trip?"
                   : modal.create
-                    ? "Where are we going?"
-                    : "Your trip, your way"
+                    ? "New trip"
+                    : "Edit trip"
           }
           onClose={close}
         >
@@ -1029,7 +901,7 @@ export function TripPlanner() {
                   required
                   maxLength={100}
                   defaultValue={editing?.title ?? suggestion?.title}
-                  placeholder="A morning at the museum…"
+                  placeholder="Museum visit"
                 />
               </label>
               <div className="form-row">
@@ -1078,18 +950,18 @@ export function TripPlanner() {
                     name="location"
                     maxLength={150}
                     defaultValue={editing?.location ?? suggestion?.location}
-                    placeholder="Somewhere worth finding"
+                    placeholder="Place or address"
                   />
                 </label>
               </div>
               <label>
-                A note for later
+                Notes
                 <textarea
                   name="notes"
                   maxLength={10000}
                   rows={3}
                   defaultValue={editing?.notes ?? suggestion?.notes}
-                  placeholder="Booking details, a reminder, or a little inspiration…"
+                  placeholder="Booking details or reminders"
                 />
               </label>
               {formError && (
@@ -1127,7 +999,7 @@ export function TripPlanner() {
                   maxLength={100}
                   required
                   defaultValue={modal.create ? "" : trip.title}
-                  placeholder="A weekend to remember"
+                  placeholder="Lisbon weekend"
                 />
               </label>
               <label>
@@ -1172,7 +1044,7 @@ export function TripPlanner() {
                   <div className="form-hint">
                     {trip.days} days
                     <br />
-                    <small>Your daily plans stay together.</small>
+                    <small>Trip duration</small>
                   </div>
                 )}
               </div>
@@ -1209,7 +1081,7 @@ export function TripPlanner() {
                   name="title"
                   required
                   maxLength={100}
-                  placeholder="A tucked-away bookshop…"
+                  placeholder="Bookshop, restaurant, or museum"
                 />
               </label>
               <div className="form-row">
@@ -1231,12 +1103,12 @@ export function TripPlanner() {
                 </label>
               </div>
               <label>
-                Why it caught your eye
+                Notes
                 <textarea
                   name="notes"
                   maxLength={10000}
                   rows={3}
-                  placeholder="Keep a little note for later."
+                  placeholder="Opening hours or other details"
                 />
               </label>
               {formError && (

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Lora } from "next/font/google";
+import { Geist } from "next/font/google";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -10,11 +10,6 @@ import "@/styles/site.css";
 const sans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-  display: "swap",
-});
-const serif = Lora({
-  subsets: ["latin"],
-  variable: "--font-serif",
   display: "swap",
 });
 export const metadata: Metadata = {
@@ -38,14 +33,14 @@ export const metadata: Metadata = {
   },
 };
 export const viewport: Viewport = {
-  themeColor: "#f8f7f3",
+  themeColor: "#ffffff",
   colorScheme: "light",
 };
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="en" className={sans.variable}>
       <body>{children}</body>
     </html>
   );

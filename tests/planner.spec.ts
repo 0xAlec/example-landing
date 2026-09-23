@@ -13,11 +13,11 @@ test("sample trip, image, tabs, checklist, and notes persist", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await expect(
-    page.getByRole("heading", { name: "A long weekend in Lisbon" }),
+    page.getByRole("heading", { name: "Lisbon weekend" }),
   ).toBeVisible();
   await expect(page.locator(".activity-card")).toHaveCount(4);
   await page
-    .locator(".trip-banner img")
+    .locator(".trip-thumbnail")
     .evaluate((image: HTMLImageElement) => image.decode());
   await expect(
     page.getByRole("button", { name: "Previous day" }),
@@ -55,7 +55,7 @@ test("add, visit, edit, move, delete, and restore an activity", async ({
   await page.getByLabel("Day", { exact: true }).selectOption("1");
   await page.getByLabel("Time", { exact: true }).fill("08:15");
   await page.getByLabel("Place or neighborhood").fill("A sunny café");
-  await page.getByLabel("A note for later").fill("Bring the paperback.");
+  await page.getByLabel("Notes").fill("Bring the paperback.");
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Add activity", exact: true })
@@ -70,7 +70,7 @@ test("add, visit, edit, move, delete, and restore an activity", async ({
     .click();
   await page.reload();
   await expect(
-    page.getByRole("button", { name: "Been there, loved that" }),
+    page.getByRole("button", { name: "Visited", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await page
     .getByRole("button", { name: "Edit Tea & a book", exact: true })
@@ -98,7 +98,7 @@ test("add, visit, edit, move, delete, and restore an activity", async ({
 test("new trips and saved places remain independent", async ({
   page,
 }, info) => {
-  await page.getByRole("button", { name: "Plan a new trip" }).click();
+  await page.getByRole("button", { name: "New trip" }).click();
   await page.getByLabel("Trip name").fill("Kyoto for New Year");
   await page.getByLabel("Destination", { exact: true }).fill("Kyoto, Japan");
   await page.getByLabel("First day").fill("2026-12-31");
@@ -108,7 +108,7 @@ test("new trips and saved places remain independent", async ({
     page.getByRole("heading", { name: "Kyoto for New Year" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "See where the day takes you" }),
+    page.getByRole("heading", { name: "No activities yet" }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Saved places", exact: false })
@@ -167,7 +167,7 @@ test("new trips and saved places remain independent", async ({
   await page.getByRole("button", { name: "Delete trip", exact: true }).click();
   await page.getByRole("button", { name: "Delete trip", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "A long weekend in Lisbon" }),
+    page.getByRole("heading", { name: "Lisbon weekend" }),
   ).toBeVisible();
   await page.reload();
   await expect(
@@ -184,13 +184,11 @@ test("export can be imported without losing existing trips", async ({
   expect(JSON.parse(bytes.toString()).trips[0].destination).toBe(
     "Lisbon, Portugal",
   );
-  await page
-    .getByLabel("Import trips", { exact: true })
-    .setInputFiles({
-      name: "roam-trips.json",
-      mimeType: "application/json",
-      buffer: bytes,
-    });
+  await page.getByLabel("Import trips", { exact: true }).setInputFiles({
+    name: "roam-trips.json",
+    mimeType: "application/json",
+    buffer: bytes,
+  });
   await expect(
     page.getByRole("navigation", { name: "Your trips" }).getByRole("button"),
   ).toHaveCount(2);

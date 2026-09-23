@@ -61,7 +61,7 @@ libraries; the Desa Node 22 image already contains Chromium dependencies.
 
 ## Deployment and future demo tasks
 
-Next.js exports static files to `out/`. Geist and Lora are downloaded through
+Next.js exports static files to `out/`. Geist is downloaded through
 `next/font/google` during builds. The existing Vercel deployment continues to
 use this repository. No backend migration is needed.
 
