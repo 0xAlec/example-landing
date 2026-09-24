@@ -1,11 +1,17 @@
 :root {
-  --paper: #ffffff;
-  --ink: #242725;
-  --muted: #656a67;
-  --line: #e7e9e6;
-  --surface: #f6f7f5;
-  --accent: #a3442e;
-  --accent-dark: #863621;
+  color-scheme: dark;
+  --paper: #0b1426;
+  --ink: #eef3fc;
+  --muted: #abbad1;
+  --line: #334761;
+  --surface: #14223a;
+  --surface-hover: #203451;
+  --surface-selected: #293f5f;
+  --accent: #ffe34d;
+  --accent-dark: #f0cb24;
+  --danger: #ffaaa5;
+  --danger-fill: #983b3b;
+  --danger-hover: #b44848;
   --text-small: 12px;
   --text-label: 13px;
   --text-body: 14px;
@@ -71,6 +77,7 @@ p {
 h1,
 h2,
 h3 {
+  color: var(--accent);
   overflow-wrap: anywhere;
 }
 h2 {
@@ -97,8 +104,8 @@ textarea {
   min-width: 0;
 }
 ::selection {
-  background: #f4dfd5;
-  color: #242725;
+  background: var(--accent);
+  color: var(--paper);
 }
 .sr-only,
 .skip-link:not(:focus) {
@@ -116,7 +123,7 @@ textarea {
   left: 12px;
   padding: 12px;
   z-index: 10;
-  background: white;
+  background: var(--surface);
 }
 
 .app-shell {
@@ -131,7 +138,7 @@ textarea {
   flex-direction: column;
   height: 100dvh;
   padding: 28px 16px 22px;
-  background: #f7f8f6;
+  background: var(--surface);
   border-right: 1px solid var(--line);
 }
 .wordmark {
@@ -175,7 +182,7 @@ textarea {
   color: var(--muted);
 }
 .icon-button:hover {
-  background: var(--surface);
+  background: var(--surface-hover);
   color: var(--ink);
 }
 .trip-list {
@@ -194,10 +201,10 @@ textarea {
   border-radius: 6px;
 }
 .trip-nav:hover {
-  background: #eceeea;
+  background: var(--surface-hover);
 }
 .trip-nav.active {
-  background: #e8ebe5;
+  background: var(--surface-selected);
 }
 .trip-nav > span:nth-child(2) {
   flex: 1;
@@ -229,7 +236,7 @@ textarea {
   color: var(--muted);
 }
 .new-trip:hover {
-  background: #eceeea;
+  background: var(--surface-hover);
   color: var(--ink);
 }
 .sidebar-bottom {
@@ -292,16 +299,16 @@ textarea {
   white-space: nowrap;
 }
 .button {
-  background: white;
+  background: var(--surface);
   box-shadow:
-    0 0 0 1px #dce0da,
-    0 1px 2px #24272508;
+    0 0 0 1px var(--line),
+    0 1px 2px #0003;
 }
 .button:hover {
-  background: var(--surface);
+  background: var(--surface-hover);
 }
 .primary {
-  color: white;
+  color: var(--paper);
   background: var(--accent);
 }
 .primary:hover {
@@ -388,7 +395,7 @@ main {
 .meta-divider {
   width: 3px;
   height: 3px;
-  background: #969c97;
+  background: var(--muted);
   border-radius: 50%;
 }
 .tabs-row {
@@ -410,7 +417,7 @@ main {
   font-size: var(--text-body);
 }
 .tabs button.selected {
-  color: var(--ink);
+  color: var(--accent);
   font-weight: 550;
 }
 .tabs button.selected::after {
@@ -420,7 +427,7 @@ main {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ink);
+  background: var(--accent);
 }
 .tabs button:hover {
   color: var(--ink);
@@ -466,7 +473,7 @@ main {
 }
 .day-picker button.active {
   color: var(--accent);
-  background: #f8eee9;
+  background: var(--surface-selected);
 }
 .day-picker button > span:first-child {
   font-size: var(--text-small);
@@ -583,19 +590,19 @@ main {
   justify-content: center;
   width: 14px;
   height: 14px;
-  border: 1px solid #aab1a9;
+  border: 1px solid var(--muted);
   border-radius: 3px;
 }
 .check-button:hover {
   color: var(--ink);
 }
 .check-button.checked > span {
-  background: #52694c;
-  border-color: #52694c;
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
 }
 .completed .activity-body h3 {
-  color: var(--muted);
+  color: var(--accent);
   text-decoration: line-through;
 }
 .day-navigation {
@@ -629,12 +636,12 @@ main {
   height: 4px;
   margin-top: 12px;
   border-radius: 2px;
-  background: #e8ebe5;
+  background: var(--surface-selected);
   overflow: hidden;
 }
 .progress-track > div {
   height: 100%;
-  background: #637b5d;
+  background: var(--accent);
   transition: width 0.2s;
 }
 .packing-card {
@@ -657,7 +664,7 @@ main {
   height: 15px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: #52694c;
+  accent-color: var(--accent);
 }
 .checklist-row input:checked + span {
   color: var(--muted);
@@ -672,11 +679,11 @@ main {
 .empty {
   padding: 44px 20px;
   text-align: center;
-  border: 1px dashed #d9ddd6;
+  border: 1px dashed var(--line);
   border-radius: 6px;
 }
 .empty > svg {
-  color: #848d80;
+  color: var(--muted);
   margin-bottom: 16px;
 }
 .empty h3 {
@@ -698,7 +705,7 @@ main {
   padding: 0 12px;
   max-width: 380px;
   min-height: 42px;
-  border: 1px solid #d4d9d1;
+  border: 1px solid var(--line);
   border-radius: 6px;
   margin-bottom: 24px;
   color: var(--muted);
@@ -708,6 +715,7 @@ main {
   outline-offset: 2px;
 }
 .search-field input {
+  color: var(--ink);
   border: 0;
   outline: 0;
   width: 100%;
@@ -764,9 +772,9 @@ main {
   min-height: 340px;
   padding: 18px;
   resize: vertical;
-  border: 1px solid #d4d9d1;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
   font-size: var(--text-body);
   line-height: 1.8;
 }
@@ -786,8 +794,8 @@ main {
   gap: 5px;
 }
 .storage-alert {
-  background: #fff4e1;
-  color: #754d12;
+  background: var(--surface-selected);
+  color: var(--accent);
   padding: 14px 16px;
   border-radius: 6px;
   margin-bottom: 24px;
@@ -805,23 +813,23 @@ main {
   max-width: calc(100vw - 32px);
   padding: 8px 8px 8px 16px;
   border-radius: 8px;
-  background: #292e2a;
-  color: white;
+  background: var(--surface-selected);
+  color: var(--ink);
   box-shadow: 0 4px 16px #0002;
   font-size: var(--text-label);
 }
 .toast > button:not(.icon-button) {
   padding: 8px;
   min-height: 40px;
-  color: #fff;
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .toast .icon-button {
-  color: #d4dad3;
+  color: var(--ink);
 }
 .toast .icon-button:hover {
-  background: #414940;
+  background: var(--surface-hover);
 }
 dialog {
   width: min(520px, calc(100vw - 32px));
@@ -830,14 +838,14 @@ dialog {
   overflow-y: auto;
   border: 0;
   border-radius: 10px;
-  background: white;
+  background: var(--surface);
   color: var(--ink);
   box-shadow:
     0 12px 48px #0002,
     0 0 0 1px #0001;
 }
 dialog::backdrop {
-  background: #17201760;
+  background: #030916b3;
 }
 .dialog-heading {
   display: flex;
@@ -863,9 +871,9 @@ dialog select {
   width: 100%;
   padding: 10px 12px;
   min-height: 42px;
-  border: 1px solid #cfd5cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
   font-weight: 400;
   font-size: var(--text-body);
 }
@@ -873,7 +881,7 @@ dialog textarea {
   resize: vertical;
 }
 ::placeholder {
-  color: #7b817b;
+  color: var(--muted);
   opacity: 1;
 }
 .form-row {
@@ -903,18 +911,22 @@ dialog textarea {
   min-height: 40px;
   padding: 8px 0;
   margin-right: auto;
-  color: #ac352d;
+  color: var(--danger);
   font-size: var(--text-label);
 }
 .danger-button:hover {
   text-decoration: underline;
 }
 .danger {
-  background: #a7332d;
+  color: var(--ink);
+  background: var(--danger-fill);
+}
+.primary.danger:hover {
+  background: var(--danger-hover);
 }
 .form-error {
   margin-bottom: 16px;
-  color: #a7332d;
+  color: var(--danger);
 }
 .delete-description {
   margin-bottom: 22px;
