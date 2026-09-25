@@ -1,11 +1,19 @@
 :root {
-  --paper: #ffffff;
-  --ink: #242725;
-  --muted: #656a67;
-  --line: #e7e9e6;
-  --surface: #f6f7f5;
-  --accent: #a3442e;
-  --accent-dark: #863621;
+  /* Lisbon at night: navy surfaces, tile blue, and sunset orange. */
+  color-scheme: dark;
+  --paper: #091426;
+  --ink: #edf4ff;
+  --muted: #afbed3;
+  --line: #2a405d;
+  --surface: #182c47;
+  --panel: #102039;
+  --sidebar: #0c192e;
+  --accent: #ff9b61;
+  --accent-hover: #ffb583;
+  --blue: #69b9ff;
+  --blue-soft: #173b60;
+  --control-line: #526b8b;
+  --danger: #ff9695;
   --text-small: 12px;
   --text-label: 13px;
   --text-body: 14px;
@@ -55,7 +63,7 @@ button:active:not(:disabled) {
   scale: 0.96;
 }
 a {
-  color: inherit;
+  color: var(--blue);
   text-decoration: none;
 }
 :where(button, a, input, select, textarea):focus-visible {
@@ -71,6 +79,7 @@ p {
 h1,
 h2,
 h3 {
+  color: var(--blue);
   overflow-wrap: anywhere;
 }
 h2 {
@@ -97,8 +106,8 @@ textarea {
   min-width: 0;
 }
 ::selection {
-  background: #f4dfd5;
-  color: #242725;
+  background: var(--blue);
+  color: var(--paper);
 }
 .sr-only,
 .skip-link:not(:focus) {
@@ -116,7 +125,7 @@ textarea {
   left: 12px;
   padding: 12px;
   z-index: 10;
-  background: white;
+  background: var(--panel);
 }
 
 .app-shell {
@@ -131,10 +140,11 @@ textarea {
   flex-direction: column;
   height: 100dvh;
   padding: 28px 16px 22px;
-  background: #f7f8f6;
+  background: var(--sidebar);
   border-right: 1px solid var(--line);
 }
 .wordmark {
+  color: var(--ink);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -194,10 +204,12 @@ textarea {
   border-radius: 6px;
 }
 .trip-nav:hover {
-  background: #eceeea;
+  background: var(--surface);
 }
 .trip-nav.active {
-  background: #e8ebe5;
+  color: var(--blue);
+  box-shadow: inset 3px 0 var(--blue);
+  background: var(--blue-soft);
 }
 .trip-nav > span:nth-child(2) {
   flex: 1;
@@ -229,7 +241,7 @@ textarea {
   color: var(--muted);
 }
 .new-trip:hover {
-  background: #eceeea;
+  background: var(--surface);
   color: var(--ink);
 }
 .sidebar-bottom {
@@ -245,6 +257,7 @@ textarea {
   min-width: 0;
 }
 .topbar {
+  background: var(--sidebar);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -292,20 +305,21 @@ textarea {
   white-space: nowrap;
 }
 .button {
-  background: white;
+  color: var(--blue);
+  background: var(--panel);
   box-shadow:
-    0 0 0 1px #dce0da,
-    0 1px 2px #24272508;
+    0 0 0 1px var(--control-line),
+    0 1px 2px #0003;
 }
 .button:hover {
   background: var(--surface);
 }
 .primary {
-  color: white;
+  color: var(--paper);
   background: var(--accent);
 }
 .primary:hover {
-  background: var(--accent-dark);
+  background: var(--accent-hover);
 }
 .subtle,
 .text-button {
@@ -352,7 +366,7 @@ main {
   object-fit: cover;
   object-position: 75% center;
   border-radius: 8px;
-  outline: 1px solid oklch(0 0 0 / 0.1);
+  outline: 1px solid var(--control-line);
   outline-offset: -1px;
 }
 .trip-heading-text {
@@ -366,6 +380,7 @@ main {
   margin-bottom: 4px;
 }
 .trip-heading h1 {
+  color: var(--accent);
   margin-bottom: 8px;
   font-size: 28px;
   line-height: 1.2;
@@ -388,7 +403,7 @@ main {
 .meta-divider {
   width: 3px;
   height: 3px;
-  background: #969c97;
+  background: var(--muted);
   border-radius: 50%;
 }
 .tabs-row {
@@ -410,7 +425,7 @@ main {
   font-size: var(--text-body);
 }
 .tabs button.selected {
-  color: var(--ink);
+  color: var(--blue);
   font-weight: 550;
 }
 .tabs button.selected::after {
@@ -420,7 +435,7 @@ main {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ink);
+  background: var(--blue);
 }
 .tabs button:hover {
   color: var(--ink);
@@ -465,8 +480,8 @@ main {
   background: var(--surface);
 }
 .day-picker button.active {
-  color: var(--accent);
-  background: #f8eee9;
+  color: var(--paper);
+  background: var(--blue);
 }
 .day-picker button > span:first-child {
   font-size: var(--text-small);
@@ -548,7 +563,7 @@ main {
   flex-wrap: wrap;
   gap: 5px;
   min-height: 28px;
-  color: var(--muted);
+  color: var(--blue);
   font-size: var(--text-label);
 }
 .place-link:hover {
@@ -583,16 +598,16 @@ main {
   justify-content: center;
   width: 14px;
   height: 14px;
-  border: 1px solid #aab1a9;
+  border: 1px solid var(--control-line);
   border-radius: 3px;
 }
 .check-button:hover {
   color: var(--ink);
 }
 .check-button.checked > span {
-  background: #52694c;
-  border-color: #52694c;
-  color: white;
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--paper);
 }
 .completed .activity-body h3 {
   color: var(--muted);
@@ -629,12 +644,12 @@ main {
   height: 4px;
   margin-top: 12px;
   border-radius: 2px;
-  background: #e8ebe5;
+  background: var(--blue-soft);
   overflow: hidden;
 }
 .progress-track > div {
   height: 100%;
-  background: #637b5d;
+  background: var(--blue);
   transition: width 0.2s;
 }
 .packing-card {
@@ -657,7 +672,7 @@ main {
   height: 15px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: #52694c;
+  accent-color: var(--blue);
 }
 .checklist-row input:checked + span {
   color: var(--muted);
@@ -672,11 +687,11 @@ main {
 .empty {
   padding: 44px 20px;
   text-align: center;
-  border: 1px dashed #d9ddd6;
+  border: 1px dashed var(--control-line);
   border-radius: 6px;
 }
 .empty > svg {
-  color: #848d80;
+  color: var(--blue);
   margin-bottom: 16px;
 }
 .empty h3 {
@@ -692,13 +707,14 @@ main {
   max-width: 880px;
 }
 .search-field {
+  background: var(--panel);
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 0 12px;
   max-width: 380px;
   min-height: 42px;
-  border: 1px solid #d4d9d1;
+  border: 1px solid var(--control-line);
   border-radius: 6px;
   margin-bottom: 24px;
   color: var(--muted);
@@ -720,6 +736,7 @@ main {
   gap: 20px;
 }
 .saved-place {
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -764,9 +781,9 @@ main {
   min-height: 340px;
   padding: 18px;
   resize: vertical;
-  border: 1px solid #d4d9d1;
+  border: 1px solid var(--control-line);
   border-radius: 6px;
-  background: white;
+  background: var(--panel);
   font-size: var(--text-body);
   line-height: 1.8;
 }
@@ -786,8 +803,8 @@ main {
   gap: 5px;
 }
 .storage-alert {
-  background: #fff4e1;
-  color: #754d12;
+  background: var(--surface);
+  color: var(--accent);
   padding: 14px 16px;
   border-radius: 6px;
   margin-bottom: 24px;
@@ -805,23 +822,23 @@ main {
   max-width: calc(100vw - 32px);
   padding: 8px 8px 8px 16px;
   border-radius: 8px;
-  background: #292e2a;
-  color: white;
-  box-shadow: 0 4px 16px #0002;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 4px 16px #0006, 0 0 0 1px var(--control-line);
   font-size: var(--text-label);
 }
 .toast > button:not(.icon-button) {
   padding: 8px;
   min-height: 40px;
-  color: #fff;
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .toast .icon-button {
-  color: #d4dad3;
+  color: var(--muted);
 }
 .toast .icon-button:hover {
-  background: #414940;
+  background: var(--blue-soft);
 }
 dialog {
   width: min(520px, calc(100vw - 32px));
@@ -830,14 +847,14 @@ dialog {
   overflow-y: auto;
   border: 0;
   border-radius: 10px;
-  background: white;
+  background: var(--panel);
   color: var(--ink);
   box-shadow:
-    0 12px 48px #0002,
-    0 0 0 1px #0001;
+    0 12px 48px #0008,
+    0 0 0 1px var(--control-line);
 }
 dialog::backdrop {
-  background: #17201760;
+  background: #030a18b8;
 }
 .dialog-heading {
   display: flex;
@@ -863,9 +880,9 @@ dialog select {
   width: 100%;
   padding: 10px 12px;
   min-height: 42px;
-  border: 1px solid #cfd5cb;
+  border: 1px solid var(--control-line);
   border-radius: 6px;
-  background: white;
+  background: var(--panel);
   font-weight: 400;
   font-size: var(--text-body);
 }
@@ -873,7 +890,7 @@ dialog textarea {
   resize: vertical;
 }
 ::placeholder {
-  color: #7b817b;
+  color: var(--muted);
   opacity: 1;
 }
 .form-row {
@@ -903,22 +920,37 @@ dialog textarea {
   min-height: 40px;
   padding: 8px 0;
   margin-right: auto;
-  color: #ac352d;
+  color: var(--danger);
   font-size: var(--text-label);
 }
 .danger-button:hover {
   text-decoration: underline;
 }
 .danger {
-  background: #a7332d;
+  background: var(--danger);
+}
+.primary.danger:hover {
+  background: #ffb4b3;
 }
 .form-error {
   margin-bottom: 16px;
-  color: #a7332d;
+  color: var(--danger);
 }
 .delete-description {
   margin-bottom: 22px;
   color: var(--muted);
+}
+
+.new-trip,
+.import-button,
+.text-button,
+.subtle,
+.activity-category,
+.place-category,
+.location-label,
+.trip-nav.active .trip-symbol,
+.tabs button.selected .count-badge {
+  color: var(--blue);
 }
 
 @media (max-width: 1120px) {
