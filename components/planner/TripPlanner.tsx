@@ -47,6 +47,8 @@ import {
   type Trip,
 } from "@/lib/trips";
 
+import { IllustratedMap } from "./IllustratedMap";
+
 import { refreshSampleCopy } from "@/lib/sample-copy";
 
 type Tab = "Itinerary" | "Saved places" | "Notes";
@@ -487,7 +489,7 @@ export function TripPlanner() {
             </button>
           </div>
         </header>
-        <main id="main-content">
+        <main id="main-content" className={tab === "Itinerary" ? "map-workspace" : undefined}>
           {storageIssue && (
             <div role="alert" className="storage-alert">
               {storageIssue}
@@ -551,7 +553,6 @@ export function TripPlanner() {
           </div>
           {tab === "Itinerary" && (
             <div className="itinerary-layout">
-              <section className="itinerary" aria-label="Daily itinerary">
                 <div className="day-picker" aria-label="Trip days">
                   {Array.from({ length: trip.days }, (_, i) => (
                     <button
@@ -573,6 +574,18 @@ export function TripPlanner() {
                     </button>
                   ))}
                 </div>
+              <IllustratedMap
+                key={`${trip.id}-${day}`}
+                activities={activities}
+                destination={trip.destination}
+                day={day}
+                onEdit={(activity) => open({ kind: "activity", id: activity.id })}
+                onToggle={(activity) => updateTrip((t) => ({
+                  ...t,
+                  activities: t.activities.map((a) => a.id === activity.id ? { ...a, done: !a.done } : a),
+                }))}
+              />
+              <section className="itinerary" aria-label="Daily itinerary">
                 <div className="day-heading">
                   <div>
                     <h2>
